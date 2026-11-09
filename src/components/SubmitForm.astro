@@ -1,0 +1,169 @@
+---
+import { CATEGORIES, DISTRICTS } from '../../shared/taxonomy';
+import { categoryLabels, districtLabels } from '../lib/labels';
+---
+
+<form id="submit-form" class="mt-8 space-y-5" enctype="multipart/form-data">
+  <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+    <label>
+      Company
+      <input name="company" tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Τίτλος</span>
+    <input name="title" required minlength="3" maxlength="140" placeholder="Πανηγύρι στην Όμοδο" />
+  </label>
+
+  <label class="field">
+    <span>Περιγραφή</span>
+    <textarea name="description" required minlength="20" maxlength="4000" placeholder="Πότε ανοίγει, τι περιλαμβάνει, για ποιον είναι."></textarea>
+  </label>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <label class="field">
+      <span>Έναρξη</span>
+      <input name="startDate" type="datetime-local" required />
+    </label>
+    <label class="field">
+      <span>Λήξη (προαιρετικά)</span>
+      <input name="endDate" type="datetime-local" />
+    </label>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <label class="field">
+      <span>Επαρχία</span>
+      <select name="district" required>
+        <option value="">Επίλεξε επαρχία</option>
+        {DISTRICTS.map((district) => <option value={district}>{districtLabels[district]}</option>)}
+      </select>
+    </label>
+    <label class="field">
+      <span>Κατηγορία</span>
+      <select name="category" required>
+        <option value="">Επίλεξε κατηγορία</option>
+        {CATEGORIES.map((category) => <option value={category}>{categoryLabels[category]}</option>)}
+      </select>
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Χώρος ή χωριό</span>
+    <input name="locationName" required minlength="2" maxlength="160" placeholder="Κάστρο Πάφου" />
+  </label>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <label class="field">
+      <span>Σύνδεσμος Google Maps</span>
+      <input name="googleMapsUrl" type="url" inputmode="url" placeholder="https://" />
+    </label>
+    <label class="field">
+      <span>Είσοδος</span>
+      <input name="priceText" maxlength="40" placeholder="Δωρεάν, €15, Είσοδος ελεύθερη" />
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Σύνδεσμος εισιτηρίων</span>
+    <input name="ticketUrl" type="url" inputmode="url" placeholder="https://" />
+  </label>
+
+  <label class="field">
+    <span>Εικόνα (JPG, PNG ή WebP, έως 4MB)</span>
+    <input name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+  </label>
+
+  <label class="field">
+    <span>Email ή τηλέφωνο επικοινωνίας</span>
+    <input name="organizerContact" required autocomplete="email" placeholder="name@example.com" />
+    <small class="text-xs font-medium text-muted">Μένει εσωτερικά στην ομάδα και δεν δημοσιεύεται.</small>
+  </label>
+
+  <fieldset class="grid gap-3 sm:grid-cols-2">
+    <legend class="mb-2 text-sm font-semibold">Τρόπος καταχώρησης</legend>
+    <label class="tier relative">
+      <input type="radio" name="tier" value="free" checked />
+      <span class="text-sm text-muted">Δωρεάν καταχώρηση</span>
+      <strong class="text-2xl">€0</strong>
+      <span class="text-sm leading-relaxed text-muted">Έλεγχος εντός 48 ωρών. Δημοσιεύεται μετά την έγκριση.</span>
+    </label>
+    <label class="tier tier-boost relative">
+      <input type="radio" name="tier" value="boosted" />
+      <span class="text-sm text-muted">Προβεβλημένη</span>
+      <strong class="text-2xl">€25</strong>
+      <span class="text-sm leading-relaxed text-muted">Καρφίτσωμα στην κορυφή και σήμα «Προτεινόμενο» για 30 ημέρες, μόλις ολοκληρωθεί η πληρωμή.</span>
+    </label>
+  </fieldset>
+
+  <p id="form-error" hidden class="rounded-2xl bg-coral/10 px-4 py-3 text-sm text-coral"></p>
+
+  <button id="submit-button" type="submit" class="w-full rounded-full bg-ink px-5 py-3.5 text-sm font-semibold text-white sm:w-auto">
+    Υποβολή για έλεγχο
+  </button>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#submit-form');
+  const errorBox = document.querySelector<HTMLElement>('#form-error');
+  const button = document.querySelector<HTMLButtonElement>('#submit-button');
+  const tiers = form?.querySelectorAll<HTMLInputElement>('input[name="tier"]');
+
+  const showError = (message: string) => {
+    if (!errorBox) return;
+    errorBox.hidden = !message;
+    errorBox.textContent = message;
+  };
+
+  const syncButton = () => {
+    if (!button || !form) return;
+    const tier = new FormData(form).get('tier');
+    button.textContent = tier === 'boosted' ? 'Συνέχεια στην πληρωμή' : 'Υποβολή για έλεγχο';
+  };
+
+  tiers?.forEach((input) => input.addEventListener('change', syncButton));
+  syncButton();
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form || !button) return;
+    if (!form.reportValidity()) return;
+    showError('');
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = 'Αποστολή…';
+    try {
+      const response = await fetch('/api/submit-event', { method: 'POST', body: new FormData(form) });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        showError(Array.isArray(data.errors) ? data.errors.join(' ') : 'Η υποβολή δεν ολοκληρώθηκε.');
+        button.disabled = false;
+        button.textContent = original;
+        return;
+      }
+      const tier = new FormData(form).get('tier');
+      const preview = data.preview ? '1' : '0';
+      if (tier !== 'boosted') {
+        window.location.href = `/submit?status=free&preview=${preview}`;
+        return;
+      }
+      const checkout = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ eventId: data.id, title: new FormData(form).get('title') }),
+      });
+      const session = await checkout.json();
+      if (session.url) {
+        window.location.href = session.url;
+        return;
+      }
+      const reason = session.error === 'stripe_not_configured' ? 'stripe' : 'failed';
+      window.location.href = `/submit?status=payment-unavailable&reason=${reason}&eventId=${encodeURIComponent(data.id)}&preview=${preview}`;
+    } catch {
+      showError('Κάτι πήγε στραβά στο δίκτυο. Δοκίμασε ξανά.');
+      button.disabled = false;
+      button.textContent = original;
+    }
+  });
+</script>

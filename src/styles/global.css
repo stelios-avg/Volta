@@ -1,0 +1,161 @@
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/inter/latin-700.css";
+@import "@fontsource/inter/greek-400.css";
+@import "@fontsource/inter/greek-500.css";
+@import "@fontsource/inter/greek-600.css";
+@import "@fontsource/inter/greek-700.css";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-sand: #f3eee6;
+  --color-paper: #fffdf8;
+  --color-ink: #17232b;
+  --color-muted: #5c6c76;
+  --color-sea: #0f6f78;
+  --color-sea-deep: #0c3f46;
+  --color-sun: #f0b429;
+  --color-coral: #e2583a;
+  --color-line: #e5ddd2;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(1200px 500px at 100% -10%, rgba(240, 180, 41, 0.16), transparent 55%),
+      radial-gradient(900px 420px at -10% 0%, rgba(15, 111, 120, 0.1), transparent 50%),
+      var(--color-sand);
+    min-height: 100vh;
+  }
+
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--color-sea);
+    outline-offset: 3px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-ink);
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.pill:hover {
+  border-color: #d5cbbd;
+  transform: translateY(-1px);
+}
+
+.pill[aria-current='true'] {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: white;
+}
+
+.featured-ring {
+  background:
+    linear-gradient(var(--color-paper), var(--color-paper)) padding-box,
+    linear-gradient(135deg, #f8e7a2, #e8a317 45%, #8a5a12) border-box;
+  border: 1.5px solid transparent;
+}
+
+.prose-event p {
+  margin-top: 0.95rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--color-ink);
+}
+
+.prose-event p:first-child {
+  margin-top: 0;
+}
+
+.prose-event a {
+  color: var(--color-sea-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--color-line);
+  background: white;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.tier {
+  display: grid;
+  gap: 0.25rem;
+  border-radius: 1.4rem;
+  border: 1.5px solid var(--color-line);
+  background: white;
+  padding: 1rem 1rem 1.05rem;
+  cursor: pointer;
+}
+
+.tier:has(input:checked) {
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 1px var(--color-ink);
+}
+
+.tier-boost:has(input:checked) {
+  border-color: #b8860b;
+  box-shadow: 0 0 0 1px #b8860b;
+  background:
+    linear-gradient(180deg, rgba(248, 231, 162, 0.45), white 42%);
+}
+
+.tier input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}

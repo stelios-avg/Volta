@@ -1,0 +1,82 @@
+---
+import Baby from '@lucide/astro/icons/baby';
+import Drama from '@lucide/astro/icons/drama';
+import MicVocal from '@lucide/astro/icons/mic-vocal';
+import PartyPopper from '@lucide/astro/icons/party-popper';
+import Trees from '@lucide/astro/icons/trees';
+import Wine from '@lucide/astro/icons/wine';
+import type { Category } from '../../shared/taxonomy';
+import { filtersToQuery, type EventFilters, type Timeframe } from '../lib/filters';
+import { categoryPills, districtPills, timeframeLabels } from '../lib/labels';
+
+interface Props {
+  filters: EventFilters;
+}
+
+const { filters } = Astro.props;
+const timeframes: Timeframe[] = ['today', 'weekend', 'week', 'month'];
+const categoryIcons: Record<Category, typeof PartyPopper> = {
+  'Village Festivals': PartyPopper,
+  'Live Music & Nightlife': MicVocal,
+  'Kids & Family': Baby,
+  'Food & Wine': Wine,
+  'Culture & Theatre': Drama,
+  'Outdoors & Nature': Trees,
+};
+---
+
+<div class="space-y-3">
+  <div class="flex gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Χρονικό διάστημα">
+    {
+      timeframes.map((id) => {
+        const active = filters.timeframe === id;
+        return (
+          <a
+            href={filtersToQuery({ ...filters, timeframe: active ? null : id })}
+            data-timeframe={id}
+            aria-current={active ? 'true' : 'false'}
+            class="pill"
+          >
+            {timeframeLabels[id]}
+          </a>
+        );
+      })
+    }
+  </div>
+  <div class="flex gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Επαρχία">
+    {
+      districtPills.map((pill) => {
+        const active = filters.district === pill.id;
+        return (
+          <a
+            href={filtersToQuery({ ...filters, district: active && pill.id !== 'all' ? 'all' : pill.id })}
+            data-district={pill.id}
+            aria-current={active ? 'true' : 'false'}
+            class="pill"
+          >
+            {pill.label}
+          </a>
+        );
+      })
+    }
+  </div>
+  <div class="flex gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Κατηγορία">
+    {
+      categoryPills.map((pill) => {
+        const Icon = categoryIcons[pill.id];
+        const active = filters.category === pill.id;
+        return (
+          <a
+            href={filtersToQuery({ ...filters, category: active ? null : pill.id })}
+            data-category={pill.id}
+            aria-current={active ? 'true' : 'false'}
+            class="pill"
+          >
+            <Icon size={15} aria-hidden="true" />
+            {pill.label}
+          </a>
+        );
+      })
+    }
+  </div>
+</div>
