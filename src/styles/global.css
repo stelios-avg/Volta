@@ -42,6 +42,18 @@
     min-height: 100vh;
   }
 
+  body.reel-page {
+    background: #e4e2df;
+    color: #111;
+    overflow: hidden;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  body.reel-page main {
+    height: 100dvh;
+  }
+
   :where(a, button, input, select, textarea, summary):focus-visible {
     outline: 2px solid var(--color-sea);
     outline-offset: 3px;

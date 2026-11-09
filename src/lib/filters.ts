@@ -43,7 +43,7 @@ export function filtersToQuery(filters: EventFilters): string {
   if (filters.category) params.set('category', filters.category);
   if (filters.q.trim()) params.set('q', filters.q.trim());
   const query = params.toString();
-  return query ? `/?${query}` : '/';
+  return query ? `/browse?${query}` : '/browse';
 }
 
 export function fold(value: string): string {

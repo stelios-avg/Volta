@@ -11,6 +11,7 @@ interface Props {
   ogType?: string;
   robots?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  bare?: boolean;
 }
 
 const {
@@ -21,6 +22,7 @@ const {
   ogType = 'website',
   robots,
   jsonLd,
+  bare = false,
 } = Astro.props;
 
 const fullTitle = title.includes("What's On") ? title : `${title} · What's On Cyprus`;
@@ -51,17 +53,17 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
     {image && <meta name="twitter:image" content={image} />}
     {json && <script type="application/ld+json" set:html={json} />}
   </head>
-  <body class="text-ink antialiased">
+  <body class:list={['antialiased', bare ? 'reel-page' : 'text-ink']}>
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
     >
       Μετάβαση στο περιεχόμενο
     </a>
-    <SiteHeader />
+    {!bare && <SiteHeader />}
     <main id="main">
       <slot />
     </main>
-    <SiteFooter />
+    {!bare && <SiteFooter />}
   </body>
 </html>
