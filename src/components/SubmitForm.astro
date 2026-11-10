@@ -81,21 +81,10 @@ import { categoryLabels, districtLabels } from '../lib/labels';
     <small class="text-xs font-medium text-muted">Μένει εσωτερικά στην ομάδα και δεν δημοσιεύεται.</small>
   </label>
 
-  <fieldset class="grid gap-3 sm:grid-cols-2">
-    <legend class="mb-2 text-sm font-semibold">Τρόπος καταχώρησης</legend>
-    <label class="tier relative">
-      <input type="radio" name="tier" value="free" checked />
-      <span class="text-sm text-muted">Δωρεάν καταχώρηση</span>
-      <strong class="text-2xl">€0</strong>
-      <span class="text-sm leading-relaxed text-muted">Έλεγχος εντός 48 ωρών. Δημοσιεύεται μετά την έγκριση.</span>
-    </label>
-    <label class="tier tier-boost relative">
-      <input type="radio" name="tier" value="boosted" />
-      <span class="text-sm text-muted">Προβεβλημένη</span>
-      <strong class="text-2xl">€25</strong>
-      <span class="text-sm leading-relaxed text-muted">Καρφίτσωμα στην κορυφή και σήμα «Προτεινόμενο» για 30 ημέρες, μόλις ολοκληρωθεί η πληρωμή.</span>
-    </label>
-  </fieldset>
+  <input type="hidden" name="tier" value="free" />
+  <p class="rounded-[28px] bg-paper px-4 py-4 text-sm leading-relaxed text-muted ring-1 ring-line">
+    Η καταχώρηση είναι δωρεάν. Ελέγχεται μέσα σε 48 ώρες και δημοσιεύεται μετά την έγκριση.
+  </p>
 
   <p id="form-error" hidden class="rounded-2xl bg-coral/10 px-4 py-3 text-sm text-coral"></p>
 
@@ -108,22 +97,12 @@ import { categoryLabels, districtLabels } from '../lib/labels';
   const form = document.querySelector<HTMLFormElement>('#submit-form');
   const errorBox = document.querySelector<HTMLElement>('#form-error');
   const button = document.querySelector<HTMLButtonElement>('#submit-button');
-  const tiers = form?.querySelectorAll<HTMLInputElement>('input[name="tier"]');
 
   const showError = (message: string) => {
     if (!errorBox) return;
     errorBox.hidden = !message;
     errorBox.textContent = message;
   };
-
-  const syncButton = () => {
-    if (!button || !form) return;
-    const tier = new FormData(form).get('tier');
-    button.textContent = tier === 'boosted' ? 'Συνέχεια στην πληρωμή' : 'Υποβολή για έλεγχο';
-  };
-
-  tiers?.forEach((input) => input.addEventListener('change', syncButton));
-  syncButton();
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -142,24 +121,8 @@ import { categoryLabels, districtLabels } from '../lib/labels';
         button.textContent = original;
         return;
       }
-      const tier = new FormData(form).get('tier');
       const preview = data.preview ? '1' : '0';
-      if (tier !== 'boosted') {
-        window.location.href = `/submit?status=free&preview=${preview}`;
-        return;
-      }
-      const checkout = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ eventId: data.id, title: new FormData(form).get('title') }),
-      });
-      const session = await checkout.json();
-      if (session.url) {
-        window.location.href = session.url;
-        return;
-      }
-      const reason = session.error === 'stripe_not_configured' ? 'stripe' : 'failed';
-      window.location.href = `/submit?status=payment-unavailable&reason=${reason}&eventId=${encodeURIComponent(data.id)}&preview=${preview}`;
+      window.location.href = `/submit?status=free&preview=${preview}`;
     } catch {
       showError('Κάτι πήγε στραβά στο δίκτυο. Δοκίμασε ξανά.');
       button.disabled = false;

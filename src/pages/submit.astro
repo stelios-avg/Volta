@@ -7,7 +7,6 @@ import { stripeClient } from '../lib/stripe';
 
 const status = Astro.url.searchParams.get('status');
 const preview = Astro.url.searchParams.get('preview') === '1';
-const eventId = Astro.url.searchParams.get('eventId');
 let paymentState: 'verified' | 'unverified' | null = null;
 
 if (status === 'boosted') {
@@ -30,14 +29,14 @@ const showForm = !status || status === 'cancelled';
 
 <Layout
   title="Καταχώρηση εκδήλωσης"
-  description="Στείλε την εκδήλωσή σου για έλεγχο ή προβίβασέ την στην κορυφή της λίστας."
+  description="Στείλε την εκδήλωσή σου δωρεάν για έλεγχο."
   robots={status ? 'noindex, nofollow' : undefined}
 >
   <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 md:py-12">
     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-sea">Για διοργανωτές</p>
     <h1 class="mt-2 text-4xl font-semibold tracking-tight">Καταχώρησε την εκδήλωσή σου</h1>
     <p class="mt-3 max-w-2xl text-muted">
-      Η δωρεάν καταχώρηση ελέγχεται μέσα σε 48 ώρες. Η προβεβλημένη θέση δημοσιεύεται αυτόματα μετά την πληρωμή και μένει στην κορυφή για 30 ημέρες.
+      Η καταχώρηση είναι δωρεάν και ελέγχεται μέσα σε 48 ώρες. Δημοσιεύεται μετά την έγκριση.
     </p>
 
     {
@@ -71,21 +70,6 @@ const showForm = !status || status === 'cancelled';
     }
 
     {
-      status === 'cancelled' && (
-        <div class="mt-8 rounded-[28px] border border-sun/50 bg-sun/15 p-5">
-          <h2 class="text-lg font-semibold">Η πληρωμή ακυρώθηκε</h2>
-          <p class="mt-2 text-sm">Η εκδήλωση έμεινε σε αναμονή, σαν δωρεάν καταχώρηση. Μπορείς να συνεχίσεις την πληρωμή των €25 ή να στείλεις νέα φόρμα.</p>
-          {eventId && (
-            <button type="button" data-retry-checkout data-event-id={eventId} class="mt-4 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white">
-              Συνέχεια στην πληρωμή
-            </button>
-          )}
-          <p id="retry-error" hidden class="mt-3 text-sm text-coral"></p>
-        </div>
-      )
-    }
-
-    {
       status === 'payment-unavailable' && (
         <div class="mt-8 rounded-[28px] bg-paper p-6 ring-1 ring-line">
           <h2 class="text-2xl font-semibold">Η καταχώρηση έμεινε σε αναμονή</h2>
@@ -102,36 +86,3 @@ const showForm = !status || status === 'cancelled';
     {showForm && <SubmitForm />}
   </div>
 </Layout>
-
-<script>
-  const retry = document.querySelector<HTMLButtonElement>('[data-retry-checkout]');
-  const retryError = document.querySelector<HTMLElement>('#retry-error');
-  retry?.addEventListener('click', async () => {
-    if (!retry.dataset.eventId) return;
-    retry.disabled = true;
-    if (retryError) retryError.hidden = true;
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ eventId: retry.dataset.eventId }),
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-        return;
-      }
-      if (retryError) {
-        retryError.hidden = false;
-        retryError.textContent = 'Η πληρωμή δεν ξεκίνησε. Έλεγξε τα κλειδιά Stripe.';
-      }
-      retry.disabled = false;
-    } catch {
-      if (retryError) {
-        retryError.hidden = false;
-        retryError.textContent = 'Κάτι πήγε στραβά στο δίκτυο.';
-      }
-      retry.disabled = false;
-    }
-  });
-</script>

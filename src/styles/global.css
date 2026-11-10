@@ -155,30 +155,3 @@
   resize: vertical;
 }
 
-.tier {
-  display: grid;
-  gap: 0.25rem;
-  border-radius: 1.4rem;
-  border: 1.5px solid var(--color-line);
-  background: white;
-  padding: 1rem 1rem 1.05rem;
-  cursor: pointer;
-}
-
-.tier:has(input:checked) {
-  border-color: var(--color-ink);
-  box-shadow: 0 0 0 1px var(--color-ink);
-}
-
-.tier-boost:has(input:checked) {
-  border-color: #b8860b;
-  box-shadow: 0 0 0 1px #b8860b;
-  background:
-    linear-gradient(180deg, rgba(248, 231, 162, 0.45), white 42%);
-}
-
-.tier input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}

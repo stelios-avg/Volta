@@ -83,13 +83,9 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
   const organizerContact = field(form, 'organizerContact');
   if (!isContact(organizerContact)) errors.push('Συμπλήρωσε email ή τηλέφωνο επικοινωνίας.');
 
-  const tierRaw = field(form, 'tier');
-  const tier = tierRaw === 'boosted' || tierRaw === 'free' ? tierRaw : null;
-  if (!tier) errors.push('Διάλεξε δωρεάν ή προβεβλημένη καταχώρηση.');
-
   const priceText = (field(form, 'priceText') || 'Δωρεάν').slice(0, 40);
 
-  if (errors.length || !startDate || !isDistrict(district) || !isCategory(category) || !tier) {
+  if (errors.length || !startDate || !isDistrict(district) || !isCategory(category)) {
     return { errors };
   }
 
@@ -107,7 +103,7 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
       priceText,
       ticketUrl,
       organizerContact,
-      tier,
+      tier: 'free',
     },
   };
 }
