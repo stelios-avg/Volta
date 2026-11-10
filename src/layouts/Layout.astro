@@ -67,6 +67,9 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
       <slot />
     </main>
     {!bare && <SiteFooter />}
+    <a class="studio-credit" href="https://www.pixel-studio.design/" target="_blank" rel="noopener noreferrer">
+      powered by Pixel-Studio
+    </a>
     <script>
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reducedMotion) {
