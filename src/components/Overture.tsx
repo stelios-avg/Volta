@@ -5,12 +5,12 @@ import '@fontsource/dm-mono/latin-400.css';
 const WORD = 'VOLTA';
 const ANGLES = [7.5, -2.5, -10, 12.5, -5, 5];
 const PHOTOS = [
-  { src: '/media/hero-concert.jpg', position: 'center 28%' },
-  { src: '/media/hero-lights.jpg', position: 'center 42%' },
   { src: '/media/hero-hands.jpg', position: 'center 30%' },
-  { src: '/media/hero-concert.jpg', position: 'center 72%' },
-  { src: '/media/hero-lights.jpg', position: '18% center' },
+  { src: '/media/hero-lights.jpg', position: 'center 42%' },
   { src: '/media/hero-hands.jpg', position: 'center 68%' },
+  { src: '/media/hero-lights.jpg', position: '18% center' },
+  { src: '/media/hero-concert.jpg', position: 'center 28%' },
+  { src: '/media/hero-concert.jpg', position: 'center 70%' },
 ];
 
 const NAV = [
