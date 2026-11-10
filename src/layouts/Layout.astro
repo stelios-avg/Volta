@@ -67,5 +67,38 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
       <slot />
     </main>
     {!bare && <SiteFooter />}
+    <script>
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reducedMotion) {
+        const layer = document.createElement('div');
+        layer.className = 'ripple-layer';
+        document.body.appendChild(layer);
+
+        const removeWhenDone = (node: HTMLElement) => {
+          node.addEventListener('animationend', () => node.remove());
+        };
+
+        window.addEventListener('pointerdown', (event) => {
+          if (event.button !== 0) return;
+          const drop = document.createElement('span');
+          drop.className = 'ripple-drop';
+          drop.style.left = `${event.clientX}px`;
+          drop.style.top = `${event.clientY}px`;
+          layer.appendChild(drop);
+          removeWhenDone(drop);
+
+          [0, 150, 300].forEach((delay, index) => {
+            const ring = document.createElement('span');
+            ring.className = 'ripple-ring';
+            ring.style.left = `${event.clientX}px`;
+            ring.style.top = `${event.clientY}px`;
+            ring.style.animationDelay = `${delay}ms`;
+            ring.style.setProperty('--ripple-scale', String(8 + index * 6));
+            layer.appendChild(ring);
+            removeWhenDone(ring);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

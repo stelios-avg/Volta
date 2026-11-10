@@ -155,3 +155,57 @@
   resize: vertical;
 }
 
+.ripple-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ripple-drop,
+.ripple-ring {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.ripple-drop {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: rgba(22, 18, 12, 0.72);
+  animation: ripple-drop 0.55s ease-out forwards;
+}
+
+.ripple-ring {
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 1.5px solid rgba(22, 18, 12, 0.72);
+  opacity: 0.8;
+  transform: scale(0.15);
+  animation: ripple-ring 1.15s cubic-bezier(0.16, 0.72, 0.18, 1) forwards;
+}
+
+@keyframes ripple-drop {
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple-ring {
+  to {
+    transform: scale(var(--ripple-scale, 16));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple-layer {
+    display: none;
+  }
+}
+
