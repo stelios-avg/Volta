@@ -5,12 +5,12 @@ import '@fontsource/dm-mono/latin-400.css';
 const WORD = 'VOLTA';
 const ANGLES = [7.5, -2.5, -10, 12.5, -5, 5];
 const PHOTOS = [
-  '/media/village.jpg',
-  '/media/jazz.jpg',
-  '/media/kids.jpg',
-  '/media/food.jpg',
-  '/media/theatre.jpg',
-  '/media/trail.jpg',
+  { src: '/media/hero-concert.jpg', position: 'center 28%' },
+  { src: '/media/hero-lights.jpg', position: 'center 42%' },
+  { src: '/media/hero-hands.jpg', position: 'center 30%' },
+  { src: '/media/hero-concert.jpg', position: 'center 72%' },
+  { src: '/media/hero-lights.jpg', position: '18% center' },
+  { src: '/media/hero-hands.jpg', position: 'center 68%' },
 ];
 
 const NAV = [
@@ -293,11 +293,12 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
       <div className="ov-panel" data-panel aria-hidden="true">
         {PHOTOS.map((photo, index) => (
           <div
-            key={photo}
+            key={`${photo.src}-${index}`}
             className="pl-img"
             data-portrait
             style={{
-              backgroundImage: `url("${photo}")`,
+              backgroundImage: `url("${photo.src}")`,
+              backgroundPosition: photo.position,
               zIndex: index + 1,
               ['--rot' as string]: `${ANGLES[index]}deg`,
             }}
