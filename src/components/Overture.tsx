@@ -278,13 +278,16 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
         <h1 className="ov-hero-word" aria-label={WORD}>
           <Masked text={WORD} marker="hero" fills />
         </h1>
-        <p className="ov-foot">
-          <span className="ov-mask">
-            <span className="ov-rise" data-ov="line">
-              {LINE}
+        <div className="ov-foot">
+          <img className="ov-mark" src="/favicon.png" alt="" width={36} height={36} />
+          <p>
+            <span className="ov-mask">
+              <span className="ov-rise" data-ov="line">
+                {LINE}
+              </span>
             </span>
-          </span>
-        </p>
+          </p>
+        </div>
       </section>
 
       <div className="ov-panel" data-panel aria-hidden="true">
@@ -360,7 +363,16 @@ const CSS = `
 }
 .ov-foot {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.ov-mark {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+.ov-foot p {
   margin: 0;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-size: 15px;
