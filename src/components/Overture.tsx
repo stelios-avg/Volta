@@ -21,7 +21,7 @@ const NAV = [
   { label: 'Καταχώρηση', href: '/submit' },
 ];
 
-const FOOTER = ['Ακρίβεια', 'Τέχνη', 'Όραμα'];
+const LINE = 'Βρες πού να βολτάρεις σήμερα';
 
 function bezier(x1: number, y1: number, x2: number, y2: number) {
   const cx = 3 * x1;
@@ -210,16 +210,11 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
           <Masked text={WORD} marker="hero" />
         </h1>
         <p className="ov-foot">
-          {FOOTER.map((word, index) => (
-            <span key={word} className="ov-foot-item">
-              {index > 0 && <span className="ov-dot">·</span>}
-              <span className="ov-mask">
-                <span className="ov-rise" data-ov="line">
-                  {word}
-                </span>
-              </span>
+          <span className="ov-mask">
+            <span className="ov-rise" data-ov="line">
+              {LINE}
             </span>
-          ))}
+          </span>
         </p>
       </section>
 
@@ -297,21 +292,12 @@ const CSS = `
 .ov-foot {
   display: flex;
   justify-content: center;
-  gap: 0.85em;
   margin: 0;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.ov-foot-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.85em;
-}
-.ov-dot {
-  opacity: 0.55;
+  letter-spacing: 0.01em;
+  text-align: center;
 }
 .ov-mask {
   display: inline-block;
