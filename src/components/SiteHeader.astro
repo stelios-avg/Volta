@@ -9,7 +9,7 @@ const categoriesActive = path.startsWith('/categories');
 
 <header class="sticky top-0 z-30 border-b border-line/80 bg-sand/85 backdrop-blur-md">
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-    <a href="/" class="flex items-center gap-2.5 rounded-xl">
+    <a href="/?ready=1" class="flex items-center gap-2.5 rounded-xl">
       <span class="grid h-9 w-9 place-items-center rounded-xl bg-ink text-sun">
         <Sun size={18} aria-hidden="true" />
       </span>
@@ -19,7 +19,7 @@ const categoriesActive = path.startsWith('/categories');
       </span>
     </a>
     <nav class="flex items-center gap-2 text-sm font-semibold">
-      <a href="/" class:list={['rounded-full px-3 py-2', path === '/' ? 'text-ink' : 'text-muted']} aria-current={path === '/' ? 'page' : undefined}>
+      <a href="/?ready=1" class:list={['rounded-full px-3 py-2', path === '/' ? 'text-ink' : 'text-muted']} aria-current={path === '/' ? 'page' : undefined}>
         Αρχική
       </a>
       <a href="/categories" class:list={['rounded-full px-3 py-2', categoriesActive ? 'text-ink' : 'text-muted']} aria-current={categoriesActive ? 'page' : undefined}>

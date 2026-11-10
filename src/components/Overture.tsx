@@ -106,12 +106,16 @@ function Masked({ text, marker }: { text: string; marker: string }) {
   );
 }
 
-export default function Overture() {
+export default function Overture({ skipIntro = false }: { skipIntro?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    if (skipIntro) {
+      if (location.search) history.replaceState(null, '', `${location.pathname}${location.hash}`);
+      return;
+    }
     if (!location.hash) {
       if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       window.scrollTo(0, 0);
@@ -186,10 +190,10 @@ export default function Overture() {
       cancelAnimationFrame(frame);
       document.documentElement.classList.remove('ov-lock');
     };
-  }, []);
+  }, [skipIntro]);
 
   return (
-    <div className="ov" ref={rootRef} id="top">
+    <div className={skipIntro ? 'ov is-ready' : 'ov'} ref={rootRef} id="top">
       <style>{CSS}</style>
       <section className="ov-hero" aria-label="What's On Cyprus">
         <nav className="ov-nav" aria-label="Κύρια">
@@ -383,6 +387,10 @@ const CSS = `
     margin: -108px 0 0 -84px;
   }
 }
+.ov.is-ready .ov-panel { display: none !important; }
+.ov.is-ready .ov-rise,
+.ov.is-ready .ov-count { transform: none !important; }
+
 @media (prefers-reduced-motion: reduce) {
   .ov-panel { display: none !important; }
   .ov-rise, .ov-count { transform: none !important; }

@@ -8,5 +8,5 @@ const description = 'Κατηγορίες εκδηλώσεων στην Κύπρ
 ---
 
 <Layout title="Volta" description={description} bare>
-  <Overture client:load />
+  <Overture client:load skipIntro={Astro.url.searchParams.get('ready') === '1'} />
 </Layout>
