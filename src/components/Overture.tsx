@@ -133,12 +133,21 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
 
     const place = () => {
       const wordBox = word.getBoundingClientRect();
-      word.style.setProperty('--fill-w', `${wordBox.width}px`);
-      word.style.setProperty('--fill-h', `${wordBox.height}px`);
+      const aspect = 1.5;
+      let coverW = wordBox.width;
+      let coverH = coverW / aspect;
+      if (coverH < wordBox.height) {
+        coverH = wordBox.height;
+        coverW = coverH * aspect;
+      }
+      const extraX = (coverW - wordBox.width) / 2;
+      const extraY = (coverH - wordBox.height) / 2;
+      word.style.setProperty('--fill-w', `${coverW}px`);
+      word.style.setProperty('--fill-h', `${coverH}px`);
       word.querySelectorAll<HTMLElement>(':scope > .ov-mask').forEach((mask) => {
         const box = mask.getBoundingClientRect();
-        mask.style.setProperty('--fill-x', `${wordBox.left - box.left}px`);
-        mask.style.setProperty('--fill-y', `${wordBox.top - box.top}px`);
+        mask.style.setProperty('--fill-x', `${wordBox.left - box.left - extraX}px`);
+        mask.style.setProperty('--fill-y', `${wordBox.top - box.top - extraY}px`);
       });
     };
 
