@@ -45,12 +45,14 @@ export function initReel(root: HTMLElement): void {
     [...nameTrack.querySelectorAll<HTMLElement>('[data-copy]')].map((node) => node.dataset.copy),
   ).size;
   const loopStart = Math.floor(copyCount / 2) * count;
+  const requested = Number(root.dataset.start);
+  const startIndex = Number.isFinite(requested) ? mod(Math.trunc(requested), count) : 0;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let position = loopStart;
+  let position = loopStart + startIndex;
   let pointerId: number | null = null;
   let pointerY = 0;
   let pointerAt = 0;
-  let dragOrigin = loopStart;
+  let dragOrigin = loopStart + startIndex;
   let dragging = false;
   let moved = false;
   let velocity = 0;

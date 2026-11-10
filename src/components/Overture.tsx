@@ -16,9 +16,9 @@ const PHOTOS = [
 const NAV = [
   { label: 'Volta', href: '#top' },
   { label: 'Εκδηλώσεις', href: '/browse' },
-  { label: 'Πανηγύρια', href: '/browse?category=Village%20Festivals' },
-  { label: 'Μουσική', href: '/browse?category=Live%20Music%20%26%20Nightlife' },
-  { label: 'Οικογένεια', href: '/browse?category=Kids%20%26%20Family' },
+  { label: 'Πανηγύρια', href: '/categories?start=0' },
+  { label: 'Μουσική', href: '/categories?start=1' },
+  { label: 'Οικογένεια', href: '/categories?start=2' },
   { label: 'Καταχώρηση', href: '/submit' },
 ];
 
@@ -256,7 +256,6 @@ const CSS = `
   padding: 28px 40px 32px;
   background: #e7e0d1;
   color: #16120c;
-  scroll-snap-align: start;
 }
 .ov-nav {
   display: flex;

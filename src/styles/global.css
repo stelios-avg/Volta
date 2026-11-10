@@ -48,8 +48,16 @@
     min-height: 100dvh;
   }
 
-  html:has(body.reel-page) {
-    scroll-snap-type: y mandatory;
+  body.reel-lock {
+    background: #e4e2df;
+    color: #111;
+    overflow: hidden;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  body.reel-lock main {
+    height: 100dvh;
   }
 
   html.ov-lock,
