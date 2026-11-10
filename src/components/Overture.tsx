@@ -379,12 +379,16 @@ const CSS = `
   font-variant-numeric: tabular-nums;
 }
 @media (max-width: 720px) {
-  .ov-hero { padding: 18px 16px 22px; }
+  .ov-hero { padding: 28px 20px 28px; }
   .ov-nav {
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 10px;
-    letter-spacing: 0.06em;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #16120c;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
   }
   .pl-img {
     width: 168px;
