@@ -43,15 +43,18 @@
   }
 
   body.reel-page {
-    background: #e4e2df;
-    color: #111;
-    overflow: hidden;
-    height: 100dvh;
+    background: #e7e0d1;
+    color: #16120c;
     min-height: 100dvh;
   }
 
-  body.reel-page main {
-    height: 100dvh;
+  html:has(body.reel-page) {
+    scroll-snap-type: y mandatory;
+  }
+
+  html.ov-lock,
+  html.ov-lock body {
+    overflow: hidden;
   }
 
   :where(a, button, input, select, textarea, summary):focus-visible {

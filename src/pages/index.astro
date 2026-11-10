@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
+import Overture from '../components/Overture';
 import { CATEGORIES } from '../../shared/taxonomy';
 import { categoryLabels } from '../lib/labels';
 
@@ -25,8 +26,8 @@ const description = 'Κατηγορίες εκδηλώσεων στην Κύπρ
 ---
 
 <Layout title="What's On Cyprus" description={description} bare>
-  <h1 class="sr-only">Κατηγορίες εκδηλώσεων στην Κύπρο</h1>
-  <section class="reel-stage" data-reel data-items={JSON.stringify(slides)} aria-roledescription="carousel">
+  <Overture client:load />
+  <section id="reel" class="reel-stage" data-reel data-items={JSON.stringify(slides)} aria-roledescription="carousel">
     <div class="reel-spine" aria-hidden="true">
       <span class="reel-spine-label is-top">Scroll to explore</span>
       <span class="reel-spine-label is-mid" data-reel-count>01 / 06</span>
@@ -95,6 +96,7 @@ const description = 'Κατηγορίες εκδηλώσεων στην Κύπρ
     --media-stride: 30vh;
     position: relative;
     height: 100dvh;
+    scroll-snap-align: start;
     overflow: hidden;
     background: #e4e2df;
     cursor: grab;

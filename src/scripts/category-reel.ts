@@ -250,6 +250,9 @@ export function initReel(root: HTMLElement): void {
   window.addEventListener(
     'wheel',
     (event) => {
+      const rect = root.getBoundingClientRect();
+      const engaged = rect.top < 48 && rect.bottom > window.innerHeight - 48;
+      if (!engaged) return;
       event.preventDefault();
       stopAutoplay();
       anim = null;
