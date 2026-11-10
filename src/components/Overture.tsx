@@ -380,6 +380,10 @@ const CSS = `
   letter-spacing: 0.01em;
   text-align: center;
 }
+.ov-foot .ov-mask {
+  line-height: 1.45;
+  padding: 0.08em 0.15em 0.18em;
+}
 .ov-hero-word .ov-rise {
   display: grid;
 }
