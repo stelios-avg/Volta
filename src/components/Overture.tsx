@@ -16,9 +16,9 @@ const PHOTOS = [
 const NAV = [
   { label: 'Volta', href: '#top' },
   { label: 'Εκδηλώσεις', href: '/browse' },
-  { label: 'Πανηγύρια', href: '/categories?start=0' },
-  { label: 'Μουσική', href: '/categories?start=1' },
-  { label: 'Οικογένεια', href: '/categories?start=2' },
+  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals' },
+  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife' },
+  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family' },
   { label: 'Καταχώρηση', href: '/submit' },
 ];
 

@@ -2,32 +2,61 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import { CATEGORIES } from '../../shared/taxonomy';
-import { categoryLabels } from '../lib/labels';
+import { getPublishedEvents } from '../lib/events';
+import { isUpcoming } from '../lib/filters';
+import { CATEGORIES, isCategory } from '../../shared/taxonomy';
+import { categoryLabels, districtLabels } from '../lib/labels';
 
-const slides = [
-  { id: CATEGORIES[0], place: 'Όμοδος', year: '2026', image: '/media/village.jpg' },
-  { id: CATEGORIES[1], place: 'Λευκωσία', year: '2026', image: '/media/jazz.jpg' },
-  { id: CATEGORIES[2], place: 'Λεμεσός', year: '2026', image: '/media/kids.jpg' },
-  { id: CATEGORIES[3], place: 'Λεμεσός', year: '2026', image: '/media/food.jpg' },
-  { id: CATEGORIES[4], place: 'Λευκωσία', year: '2026', image: '/media/theatre.jpg' },
-  { id: CATEGORIES[5], place: 'Τρόοδος', year: '2026', image: '/media/trail.jpg' },
-].map((slide) => ({
-  name: categoryLabels[slide.id],
-  place: slide.place,
-  year: slide.year,
-  image: slide.image,
-  href: `/browse?category=${encodeURIComponent(slide.id)}`,
+const categoryParam = Astro.url.searchParams.get('category');
+const category = categoryParam && isCategory(categoryParam) ? categoryParam : null;
+
+const categorySlides = CATEGORIES.map((id) => ({
+  name: categoryLabels[id],
+  place: id === 'Village Festivals' ? 'Όμοδος' : id === 'Outdoors & Nature' ? 'Τρόοδος' : id === 'Food & Wine' || id === 'Kids & Family' ? 'Λεμεσός' : 'Λευκωσία',
+  year: '2026',
+  image:
+    id === 'Village Festivals'
+      ? '/media/village.jpg'
+      : id === 'Live Music & Nightlife'
+        ? '/media/jazz.jpg'
+        : id === 'Kids & Family'
+          ? '/media/kids.jpg'
+          : id === 'Food & Wine'
+            ? '/media/food.jpg'
+            : id === 'Culture & Theatre'
+              ? '/media/theatre.jpg'
+              : '/media/trail.jpg',
+  href: `/categories?category=${encodeURIComponent(id)}`,
 }));
 
-const copies = [0, 1, 2, 3, 4];
-const requested = Number(Astro.url.searchParams.get('start') ?? '0');
-const start = Number.isFinite(requested) ? Math.min(slides.length - 1, Math.max(0, Math.trunc(requested))) : 0;
-const description = 'Κατηγορίες εκδηλώσεων στην Κύπρο: πανηγύρια, μουσική, οικογένεια, γεύσεις, πολιτισμός και ύπαιθρος.';
+const feed = category ? await getPublishedEvents() : null;
+const eventSlides = (feed?.events ?? [])
+  .filter((event) => event.category === category && isUpcoming(event))
+  .map((event) => ({
+    name: event.title,
+    place: event.locationName || districtLabels[event.district],
+    year: new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Nicosia', year: 'numeric' }).format(new Date(event.startDate)),
+    image: event.imageUrl,
+    href: `/events/${event.slug}`,
+  }));
+
+const slides = category ? eventSlides : categorySlides;
+const copies = slides.length ? [0, 1, 2, 3, 4] : [];
+const description = category
+  ? `Εκδηλώσεις στην κατηγορία ${categoryLabels[category]}.`
+  : 'Κατηγορίες εκδηλώσεων στην Κύπρο: πανηγύρια, μουσική, οικογένεια, γεύσεις, πολιτισμός και ύπαιθρος.';
 ---
 
-<Layout title="Κατηγορίες" description={description} bare locked>
-  <section id="reel" class="reel-stage" data-reel data-start={start} data-items={JSON.stringify(slides)} aria-roledescription="carousel">
+<Layout title={category ? categoryLabels[category] : 'Κατηγορίες'} description={description} bare locked>
+  {
+    slides.length === 0 && (
+      <section class="reel-empty">
+        <p>Δεν υπάρχουν προσεχείς εκδηλώσεις σε αυτή την κατηγορία.</p>
+        <a href="/categories">Όλες οι κατηγορίες</a>
+      </section>
+    )
+  }
+  <section id="reel" class="reel-stage" data-reel data-items={JSON.stringify(slides)} aria-roledescription="carousel" hidden={slides.length === 0}>
     <div class="reel-spine" aria-hidden="true">
       <span class="reel-spine-label is-top">Scroll to explore</span>
       <span class="reel-spine-label is-mid" data-reel-count>01 / 06</span>
@@ -213,6 +242,12 @@ const description = 'Κατηγορίες εκδηλώσεων στην Κύπρ
     will-change: transform;
   }
 
+  .reel-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .reel-name {
     display: flex;
     align-items: center;
@@ -310,6 +345,25 @@ const description = 'Κατηγορίες εκδηλώσεων στην Κύπρ
       display: none;
     }
 
+  }
+
+  .reel-empty {
+    display: grid;
+    min-height: 100dvh;
+    place-items: center;
+    align-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: #161616;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .reel-empty a {
+    color: inherit;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
   @media (prefers-reduced-motion: reduce) {
