@@ -22,6 +22,7 @@ const NAV = [
 ];
 
 const LINE = 'Βρες πού να βολτάρεις σήμερα';
+const FILLS = ['/media/hero-concert.jpg', '/media/hero-lights.jpg', '/media/hero-hands.jpg'];
 
 function bezier(x1: number, y1: number, x2: number, y2: number) {
   const cx = 3 * x1;
@@ -91,13 +92,29 @@ function ranks(length: number) {
   return rank;
 }
 
-function Masked({ text, marker }: { text: string; marker: string }) {
+function Masked({ text, marker, fills = false }: { text: string; marker: string; fills?: boolean }) {
   return (
     <>
       {text.split('').map((char, index) => (
         <span className="ov-mask" key={`${marker}-${index}`}>
           <span className="ov-rise" data-ov={marker}>
-            {char}
+            {fills ? (
+              <>
+                <span className="ov-solid">{char}</span>
+                {FILLS.map((src, fillIndex) => (
+                  <span
+                    key={src}
+                    className={fillIndex === 0 ? 'ov-ink is-on' : 'ov-ink'}
+                    data-fill={fillIndex}
+                    style={{ backgroundImage: `url("${src}")` }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </>
+            ) : (
+              char
+            )}
           </span>
         </span>
       ))}
@@ -107,6 +124,58 @@ function Masked({ text, marker }: { text: string; marker: string }) {
 
 export default function Overture({ skipIntro = false }: { skipIntro?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const word = root.querySelector<HTMLElement>('.ov-hero-word');
+    if (!word) return;
+
+    const place = () => {
+      const wordBox = word.getBoundingClientRect();
+      word.style.setProperty('--fill-w', `${wordBox.width}px`);
+      word.style.setProperty('--fill-h', `${wordBox.height}px`);
+      word.querySelectorAll<HTMLElement>(':scope > .ov-mask').forEach((mask) => {
+        const box = mask.getBoundingClientRect();
+        mask.style.setProperty('--fill-x', `${wordBox.left - box.left}px`);
+        mask.style.setProperty('--fill-y', `${wordBox.top - box.top}px`);
+      });
+    };
+
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(word);
+    let current = 0;
+    let timer = 0;
+    let swap = 0;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduced) {
+      timer = window.setInterval(() => {
+        const next = (current + 1) % FILLS.length;
+        word.querySelectorAll<HTMLElement>('.ov-ink').forEach((node) => {
+          if (Number(node.dataset.fill) === next) {
+            node.style.zIndex = '2';
+            node.classList.add('is-on');
+          }
+        });
+        swap = window.setTimeout(() => {
+          word.querySelectorAll<HTMLElement>('.ov-ink').forEach((node) => {
+            if (Number(node.dataset.fill) !== next) {
+              node.classList.remove('is-on');
+              node.style.zIndex = '1';
+            }
+          });
+          current = next;
+        }, 1200);
+      }, 3000);
+    }
+
+    return () => {
+      observer.disconnect();
+      window.clearInterval(timer);
+      window.clearTimeout(swap);
+    };
+  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -207,7 +276,7 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
           ))}
         </nav>
         <h1 className="ov-hero-word" aria-label={WORD}>
-          <Masked text={WORD} marker="hero" />
+          <Masked text={WORD} marker="hero" fills />
         </h1>
         <p className="ov-foot">
           <span className="ov-mask">
@@ -298,6 +367,30 @@ const CSS = `
   font-weight: 600;
   letter-spacing: 0.01em;
   text-align: center;
+}
+.ov-hero-word .ov-rise {
+  display: grid;
+}
+.ov-hero-word .ov-solid,
+.ov-hero-word .ov-ink {
+  grid-area: 1 / 1;
+}
+.ov-solid {
+  color: #16120c;
+}
+.ov-ink {
+  background-repeat: no-repeat;
+  background-size: var(--fill-w) var(--fill-h);
+  background-position: var(--fill-x) var(--fill-y);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.ov-ink.is-on {
+  opacity: 1;
 }
 .ov-mask {
   display: inline-block;
