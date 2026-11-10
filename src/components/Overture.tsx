@@ -14,7 +14,6 @@ const PHOTOS = [
 ];
 
 const NAV = [
-  { label: 'Volta', href: '#top' },
   { label: 'Εκδηλώσεις', href: '/browse' },
   { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals' },
   { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife' },
@@ -263,17 +262,24 @@ const CSS = `
 }
 .ov-nav {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  flex-wrap: nowrap;
   gap: 18px;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.12em;
+  line-height: 1;
   text-transform: uppercase;
 }
 .ov-link {
+  display: inline-flex;
+  align-items: center;
   color: inherit;
+  line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
 }
 .ov-hero-word {
   display: flex;
@@ -375,11 +381,10 @@ const CSS = `
 @media (max-width: 720px) {
   .ov-hero { padding: 18px 16px 22px; }
   .ov-nav {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px 14px;
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
   }
   .pl-img {
     width: 168px;
