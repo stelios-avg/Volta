@@ -1,0 +1,379 @@
+---
+interface Slide {
+  name: string;
+  place: string;
+  year: string;
+  image: string;
+  href: string;
+}
+
+interface Props {
+  slides: Slide[];
+  showBack?: boolean;
+  emptyText?: string;
+  emptyHref?: string;
+  emptyLabel?: string;
+}
+
+const {
+  slides,
+  showBack = false,
+  emptyText = 'Δεν υπάρχουν προσεχείς εκδηλώσεις.',
+  emptyHref = '/',
+  emptyLabel = 'Αρχική',
+} = Astro.props;
+
+const copies = slides.length ? [0, 1, 2, 3, 4] : [];
+---
+  {
+    showBack && (
+      <a href="/" class="reel-back">
+        <span aria-hidden="true">←</span>
+        Αρχική
+      </a>
+    )
+  }
+  {
+    slides.length === 0 && (
+      <section class="reel-empty">
+        <p>{emptyText}</p>
+        <a href={emptyHref}>{emptyLabel}</a>
+      </section>
+    )
+  }
+  <section id="reel" class="reel-stage" data-reel data-items={JSON.stringify(slides)} aria-roledescription="carousel" hidden={slides.length === 0}>
+    <div class="reel-spine" aria-hidden="true">
+      <span class="reel-spine-label is-top">Scroll to explore</span>
+      <span class="reel-spine-label is-mid" data-reel-count>01 / 06</span>
+      <span class="reel-spine-label is-bot">Selected work</span>
+    </div>
+
+    <div class="reel-names">
+      <div class="reel-track" data-name-track>
+        {
+          copies.map((copy) =>
+            slides.map((slide, index) => (
+              <button
+                type="button"
+                class="reel-name"
+                data-copy={copy}
+                data-i={index}
+                data-href={slide.href}
+              >
+                <span class="reel-title">{slide.name}</span>
+                <span class="reel-meta" data-meta>
+                  {slide.place}
+                  <span aria-hidden="true"> · </span>
+                  {slide.year}
+                </span>
+              </button>
+            )),
+          )
+        }
+      </div>
+    </div>
+
+    <div class="reel-window">
+      <div class="reel-track" data-media-track>
+        {
+          copies.map((copy) =>
+            slides.map((slide, index) => (
+              <div class="reel-slot" data-copy={copy} data-i={index}>
+                <a class="reel-card" href={slide.href} aria-label={slide.name} tabindex={copy === 1 ? 0 : -1}>
+                  <img src={slide.image} alt="" draggable="false" />
+                </a>
+              </div>
+            )),
+          )
+        }
+      </div>
+    </div>
+
+    <div class="reel-frame" data-reel-frame></div>
+  </section>
+
+<script>
+  import { initReel } from '../scripts/category-reel';
+
+  const root = document.querySelector<HTMLElement>('[data-reel]');
+  if (root) initReel(root);
+</script>
+
+<style is:global>
+  .reel-stage {
+    --frame-w: min(92vw, 980px);
+    --frame-h: min(58vh, 560px);
+    --gap: 12px;
+    --reel-inset: 22px;
+    --name-stride: 44px;
+    --media-stride: 30vh;
+    position: relative;
+    height: 100dvh;
+    overflow: hidden;
+    background: #e4e2df;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .reel-stage:active {
+    cursor: grabbing;
+  }
+
+  @media (min-width: 1100px) {
+    .reel-stage {
+      --frame-w: min(84vw, 1360px);
+      --frame-h: min(64vh, 760px);
+      --name-stride: 46px;
+    }
+  }
+
+  .reel-frame {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    top: 50%;
+    width: var(--frame-w);
+    height: var(--frame-h);
+    transform: translate(-50%, -50%);
+    border: 1px solid #111;
+    border-radius: 36px;
+    pointer-events: none;
+  }
+
+  .reel-spine {
+    position: absolute;
+    z-index: 6;
+    top: 11vh;
+    bottom: 11vh;
+    left: calc(50% - var(--frame-w) / 2 + 20px);
+    width: 1px;
+    background: #c4c2be;
+    pointer-events: none;
+  }
+
+  .reel-spine-label {
+    position: absolute;
+    left: 12px;
+    color: #9c9a96;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .reel-spine-label.is-top {
+    top: 12%;
+  }
+
+  .reel-spine-label.is-mid {
+    top: 50%;
+    color: #6f6d6a;
+    letter-spacing: 0.22em;
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  .reel-spine-label.is-bot {
+    top: auto;
+    bottom: 12%;
+  }
+
+  .reel-names {
+    position: absolute;
+    z-index: 4;
+    top: calc(50% - var(--frame-h) / 2);
+    left: calc(50% - var(--frame-w) / 2 + 78px);
+    width: calc(var(--frame-w) * 0.44);
+    height: var(--frame-h);
+    overflow: hidden;
+  }
+
+  .reel-window {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    width: calc(var(--frame-w) * 0.4);
+    right: calc(50% - var(--frame-w) / 2 + var(--reel-inset));
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.22) 0,
+      rgba(0, 0, 0, 0.22) calc(50% - var(--frame-h) / 2),
+      #000 calc(50% - var(--frame-h) / 2),
+      #000 calc(50% + var(--frame-h) / 2),
+      rgba(0, 0, 0, 0.22) calc(50% + var(--frame-h) / 2),
+      rgba(0, 0, 0, 0.22) 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.22) 0,
+      rgba(0, 0, 0, 0.22) calc(50% - var(--frame-h) / 2),
+      #000 calc(50% - var(--frame-h) / 2),
+      #000 calc(50% + var(--frame-h) / 2),
+      rgba(0, 0, 0, 0.22) calc(50% + var(--frame-h) / 2),
+      rgba(0, 0, 0, 0.22) 100%
+    );
+  }
+
+  .reel-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    will-change: transform;
+  }
+
+  .reel-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reel-name {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    height: var(--name-stride);
+    margin: 0;
+    padding: 0 0 0 8px;
+    border: 0;
+    background: transparent;
+    color: #d0cecb;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .reel-meta {
+    color: #161616;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  .reel-slot {
+    display: flex;
+    align-items: center;
+    height: var(--media-stride);
+  }
+
+  .reel-card {
+    display: block;
+    width: 100%;
+    height: calc(100% - var(--gap));
+    overflow: hidden;
+    background: #d9d6d2;
+  }
+
+  .reel-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.06);
+  }
+
+  .reel-slot.is-live img {
+    animation: reel-drift 16s ease-in-out infinite alternate;
+  }
+
+  @keyframes reel-drift {
+    from {
+      transform: translate3d(0, 2.2%, 0) scale(1.06);
+    }
+    to {
+      transform: translate3d(0, -2.2%, 0) scale(1.06);
+    }
+  }
+
+  @media (max-width: 800px) {
+    .reel-stage {
+      --frame-w: calc(100vw - 16px);
+      --frame-h: 60dvh;
+      --gap: 8px;
+      --reel-inset: 10px;
+      --name-stride: 34px;
+    }
+
+    .reel-frame {
+      border-radius: 22px;
+    }
+
+    .reel-spine {
+      display: none;
+    }
+
+    .reel-names {
+      left: calc(50% - var(--frame-w) / 2 + 26px);
+      width: calc(var(--frame-w) * 0.48);
+    }
+
+    .reel-name {
+      gap: 0;
+      padding-left: 0;
+      font-size: 15px;
+    }
+
+    .reel-meta {
+      display: none;
+    }
+
+  }
+
+  .reel-back {
+    position: fixed;
+    z-index: 30;
+    top: 18px;
+    left: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #e4e2df;
+    color: #111;
+    padding: 0.45rem 0.85rem;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .reel-empty {
+    display: grid;
+    min-height: 100dvh;
+    place-items: center;
+    align-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: #161616;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .reel-empty a {
+    color: inherit;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reel-slot.is-live img {
+      animation: none;
+    }
+  }
+</style>
