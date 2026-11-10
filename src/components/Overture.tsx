@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import '@fontsource/archivo/latin-900.css';
 import '@fontsource/dm-mono/latin-400.css';
 
-const WORD = 'CYPRUS';
+const WORD = 'VOLTA';
 const ANGLES = [7.5, -2.5, -10, 12.5, -5, 5];
 const PHOTOS = [
   '/media/village.jpg',
@@ -14,7 +14,7 @@ const PHOTOS = [
 ];
 
 const NAV = [
-  { label: 'Κύπρος', href: '#top' },
+  { label: 'Volta', href: '#top' },
   { label: 'Εκδηλώσεις', href: '/browse' },
   { label: 'Πανηγύρια', href: '/browse?category=Village%20Festivals' },
   { label: 'Μουσική', href: '/browse?category=Live%20Music%20%26%20Nightlife' },
