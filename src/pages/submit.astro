@@ -8,6 +8,7 @@ import { stripeClient } from '../lib/stripe';
 
 const status = Astro.url.searchParams.get('status');
 const preview = Astro.url.searchParams.get('preview') === '1';
+const emailed = Astro.url.searchParams.get('emailed') === '1';
 let paymentState: 'verified' | 'unverified' | null = null;
 
 if (status === 'boosted') {
@@ -49,7 +50,11 @@ const showForm = !status || status === 'cancelled';
         status === 'free' && (
           <div class="submit-status">
             <h2>Η εκδήλωσή σου θα ελεγχθεί εντός 48 ωρών</h2>
-            <p>Θα δημοσιευτεί μόλις την εγκρίνει η ομάδα. Δεν χρειάζεται να στείλεις κάτι άλλο.</p>
+            <p>
+              {emailed
+                ? 'Στάλθηκε email για έγκριση. Θα δημοσιευτεί μόλις πατηθεί ο σύνδεσμος έγκρισης.'
+                : 'Θα δημοσιευτεί μόλις την εγκρίνει η ομάδα. Δεν χρειάζεται να στείλεις κάτι άλλο.'}
+            </p>
             {preview && <p>Δοκιμαστική λειτουργία: δεν έχει συνδεθεί ακόμα βάση, οπότε η καταχώρηση δεν αποθηκεύτηκε.</p>}
             <a href="/browse">Πίσω στις εκδηλώσεις</a>
           </div>

@@ -118,7 +118,8 @@ import { categoryLabels, districtLabels } from '../lib/labels';
         return;
       }
       const preview = data.preview ? '1' : '0';
-      window.location.href = `/submit?status=free&preview=${preview}`;
+      const emailed = data.emailed ? '1' : '0';
+      window.location.href = `/submit?status=free&preview=${preview}&emailed=${emailed}`;
     } catch {
       showError('Κάτι πήγε στραβά στο δίκτυο. Δοκίμασε ξανά.');
       button.disabled = false;
