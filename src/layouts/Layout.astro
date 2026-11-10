@@ -25,7 +25,7 @@ const {
   bare = false,
 } = Astro.props;
 
-const fullTitle = title.includes("What's On") ? title : `${title} · What's On Cyprus`;
+const fullTitle = title === 'Volta' ? title : `${title} · Volta`;
 const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
 ---
 
