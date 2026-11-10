@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 
+import '@fontsource/archivo/latin-900.css';
 import SubmitForm from '../components/SubmitForm.astro';
 import Layout from '../layouts/Layout.astro';
 import { stripeClient } from '../lib/stripe';
@@ -31,58 +32,226 @@ const showForm = !status || status === 'cancelled';
   title="Καταχώρηση εκδήλωσης"
   description="Στείλε την εκδήλωσή σου δωρεάν για έλεγχο."
   robots={status ? 'noindex, nofollow' : undefined}
+  bare
 >
-  <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 md:py-12">
-    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-sea">Για διοργανωτές</p>
-    <h1 class="mt-2 text-4xl font-semibold tracking-tight">Καταχώρησε την εκδήλωσή σου</h1>
-    <p class="mt-3 max-w-2xl text-muted">
-      Η καταχώρηση είναι δωρεάν και ελέγχεται μέσα σε 48 ώρες. Δημοσιεύεται μετά την έγκριση.
-    </p>
+  <div class="submit-page">
+    <a href="/?ready=1" class="submit-back">
+      <span aria-hidden="true">←</span>
+      Αρχική
+    </a>
 
-    {
-      status === 'free' && (
-        <div class="mt-8 rounded-[28px] bg-paper p-6 ring-1 ring-line">
-          <h2 class="text-2xl font-semibold">Η εκδήλωσή σου θα ελεγχθεί εντός 48 ωρών</h2>
-          <p class="mt-3 text-muted">Θα δημοσιευτεί μόλις την εγκρίνει η ομάδα. Δεν χρειάζεται να στείλεις κάτι άλλο.</p>
-          {preview && <p class="mt-3 text-sm text-sea-deep">Δοκιμαστική λειτουργία: δεν έχει συνδεθεί ακόμα Sanity, οπότε η καταχώρηση δεν αποθηκεύτηκε.</p>}
-          <a href="/browse" class="mt-6 inline-flex rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white">Πίσω στις εκδηλώσεις</a>
-        </div>
-      )
-    }
+    <section class="submit-frame">
+      <p class="submit-kicker">Καταχώρηση</p>
+      <h1>Νέα εκδήλωση</h1>
+      <p class="submit-lead">Δωρεάν καταχώρηση. Έλεγχος μέσα σε 48 ώρες και δημοσίευση μετά την έγκριση.</p>
 
-    {
-      status === 'boosted' && (
-        <div class="mt-8 rounded-[28px] bg-paper p-6 ring-1 ring-line">
-          {paymentState === 'verified' ? (
-            <>
-              <h2 class="text-2xl font-semibold">Η πληρωμή ολοκληρώθηκε</h2>
-              <p class="mt-3 text-muted">Η εκδήλωση σημάνθηκε ως προβεβλημένη και δημοσιεύτηκε. Το σήμα «Προτεινόμενο» μένει ενεργό για 30 ημέρες.</p>
-            </>
-          ) : (
-            <>
-              <h2 class="text-2xl font-semibold">Δεν επιβεβαιώθηκε η πληρωμή</h2>
-              <p class="mt-3 text-muted">Αν χρεώθηκες, η δημοσίευση θα ολοκληρωθεί μόλις το Stripe επιβεβαιώσει τη συνεδρία. Αλλιώς η καταχώρηση μένει σε αναμονή.</p>
-            </>
-          )}
-          <a href="/browse" class="mt-6 inline-flex rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white">Πίσω στις εκδηλώσεις</a>
-        </div>
-      )
-    }
+      {
+        status === 'free' && (
+          <div class="submit-status">
+            <h2>Η εκδήλωσή σου θα ελεγχθεί εντός 48 ωρών</h2>
+            <p>Θα δημοσιευτεί μόλις την εγκρίνει η ομάδα. Δεν χρειάζεται να στείλεις κάτι άλλο.</p>
+            {preview && <p>Δοκιμαστική λειτουργία: δεν έχει συνδεθεί ακόμα βάση, οπότε η καταχώρηση δεν αποθηκεύτηκε.</p>}
+            <a href="/browse">Πίσω στις εκδηλώσεις</a>
+          </div>
+        )
+      }
 
-    {
-      status === 'payment-unavailable' && (
-        <div class="mt-8 rounded-[28px] bg-paper p-6 ring-1 ring-line">
-          <h2 class="text-2xl font-semibold">Η καταχώρηση έμεινε σε αναμονή</h2>
-          <p class="mt-3 text-muted">
-            {preview
-              ? 'Δοκιμαστική λειτουργία: χωρίς κλειδιά Sanity και Stripe δεν αποθηκεύεται εκδήλωση και δεν ανοίγει πληρωμή.'
-              : 'Η εκδήλωση αποθηκεύτηκε για έλεγχο, αλλά το Stripe δεν είναι ρυθμισμένο, οπότε η προβεβλημένη θέση δεν ενεργοποιήθηκε.'}
-          </p>
-          <a href="/browse" class="mt-6 inline-flex rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white">Πίσω στις εκδηλώσεις</a>
-        </div>
-      )
-    }
+      {
+        status === 'boosted' && (
+          <div class="submit-status">
+            {paymentState === 'verified' ? (
+              <>
+                <h2>Η πληρωμή ολοκληρώθηκε</h2>
+                <p>Η εκδήλωση σημάνθηκε ως προβεβλημένη και δημοσιεύτηκε.</p>
+              </>
+            ) : (
+              <>
+                <h2>Δεν επιβεβαιώθηκε η πληρωμή</h2>
+                <p>Αν χρεώθηκες, η δημοσίευση θα ολοκληρωθεί μόλις επιβεβαιωθεί η συνεδρία. Αλλιώς η καταχώρηση μένει σε αναμονή.</p>
+              </>
+            )}
+            <a href="/browse">Πίσω στις εκδηλώσεις</a>
+          </div>
+        )
+      }
 
-    {showForm && <SubmitForm />}
+      {
+        status === 'payment-unavailable' && (
+          <div class="submit-status">
+            <h2>Η καταχώρηση έμεινε σε αναμονή</h2>
+            <p>
+              {preview
+                ? 'Δοκιμαστική λειτουργία: χωρίς σύνδεση βάσης η καταχώρηση δεν αποθηκεύτηκε.'
+                : 'Η εκδήλωση αποθηκεύτηκε για έλεγχο.'}
+            </p>
+            <a href="/browse">Πίσω στις εκδηλώσεις</a>
+          </div>
+        )
+      }
+
+      {showForm && <SubmitForm />}
+    </section>
   </div>
 </Layout>
+
+<style is:global>
+  .submit-page {
+    min-height: 100dvh;
+    background: #e7e0d1;
+    color: #16120c;
+    padding: 92px 20px 72px;
+  }
+
+  .submit-back {
+    position: fixed;
+    z-index: 30;
+    top: 18px;
+    left: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #e7e0d1;
+    color: #111;
+    padding: 0.45rem 0.85rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .submit-frame {
+    max-width: 760px;
+    margin: 0 auto;
+    border: 1px solid #111;
+    border-radius: 36px;
+    padding: 42px 40px 36px;
+  }
+
+  .submit-kicker {
+    margin: 0;
+    color: #6f6d6a;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .submit-frame h1 {
+    margin: 12px 0 0;
+    font-family: Archivo, Inter, sans-serif;
+    font-size: clamp(42px, 7vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.88;
+    text-transform: uppercase;
+  }
+
+  .submit-lead,
+  .submit-note,
+  .submit-status p {
+    max-width: 36rem;
+    margin: 14px 0 0;
+    color: #3c3832;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .submit-form {
+    display: grid;
+    gap: 1.15rem;
+    margin-top: 2rem;
+  }
+
+  .submit-page .field span {
+    color: #6f6d6a;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .submit-page .field small {
+    color: #6f6d6a;
+  }
+
+  .submit-page .field input,
+  .submit-page .field select,
+  .submit-page .field textarea {
+    border: 0;
+    border-bottom: 1px solid #16120c;
+    border-radius: 0;
+    background: transparent;
+    padding: 0.65rem 0;
+    color: #16120c;
+  }
+
+  .submit-page .field textarea {
+    min-height: 7.5rem;
+    border: 1px solid #16120c;
+    border-radius: 18px;
+    padding: 0.85rem 0.95rem;
+  }
+
+  .submit-page .field input:focus,
+  .submit-page .field select:focus,
+  .submit-page .field textarea:focus {
+    outline: none;
+    border-color: #111;
+  }
+
+  .submit-note {
+    margin-top: 0.4rem;
+  }
+
+  .submit-error {
+    margin: 0;
+    color: #9a3412;
+    font-size: 14px;
+  }
+
+  .submit-send,
+  .submit-status a {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #16120c;
+    color: #f3ede1;
+    padding: 0.8rem 1.15rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .submit-status {
+    margin-top: 1.75rem;
+  }
+
+  .submit-status h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .submit-status a {
+    margin-top: 1.25rem;
+  }
+
+  @media (max-width: 720px) {
+    .submit-page {
+      padding: 104px 12px 48px;
+    }
+
+    .submit-frame {
+      border-radius: 22px;
+      padding: 28px 18px 24px;
+    }
+  }
+</style>

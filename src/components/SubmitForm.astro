@@ -3,7 +3,7 @@ import { CATEGORIES, DISTRICTS } from '../../shared/taxonomy';
 import { categoryLabels, districtLabels } from '../lib/labels';
 ---
 
-<form id="submit-form" class="mt-8 space-y-5" enctype="multipart/form-data">
+<form id="submit-form" class="submit-form" enctype="multipart/form-data">
   <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
     <label>
       Company
@@ -82,15 +82,11 @@ import { categoryLabels, districtLabels } from '../lib/labels';
   </label>
 
   <input type="hidden" name="tier" value="free" />
-  <p class="rounded-[28px] bg-paper px-4 py-4 text-sm leading-relaxed text-muted ring-1 ring-line">
-    Η καταχώρηση είναι δωρεάν. Ελέγχεται μέσα σε 48 ώρες και δημοσιεύεται μετά την έγκριση.
-  </p>
+  <p class="submit-note">Η καταχώρηση είναι δωρεάν. Ελέγχεται μέσα σε 48 ώρες και δημοσιεύεται μετά την έγκριση.</p>
 
-  <p id="form-error" hidden class="rounded-2xl bg-coral/10 px-4 py-3 text-sm text-coral"></p>
+  <p id="form-error" hidden class="submit-error"></p>
 
-  <button id="submit-button" type="submit" class="w-full rounded-full bg-ink px-5 py-3.5 text-sm font-semibold text-white sm:w-auto">
-    Υποβολή για έλεγχο
-  </button>
+  <button id="submit-button" type="submit" class="submit-send">Υποβολή για έλεγχο</button>
 </form>
 
 <script>
