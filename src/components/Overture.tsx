@@ -22,7 +22,17 @@ const NAV = [
 ];
 
 const LINE = 'Βρες πού να βολτάρεις σήμερα';
-const FILLS = ['/media/hero-concert.jpg', '/media/hero-lights.jpg', '/media/hero-hands.jpg'];
+const FILLS = [
+  { src: '/media/hero-concert.jpg', aspect: 1.5 },
+  { src: '/media/hero-lights.jpg', aspect: 1.5 },
+  { src: '/media/hero-hands.jpg', aspect: 1.5 },
+  { src: '/media/stack-dj.jpg', aspect: 1.5 },
+  { src: '/media/stack-club.jpg', aspect: 1.5 },
+  { src: '/media/stack-guitar.jpg', aspect: 1.5 },
+  { src: '/media/stack-wine.jpg', aspect: 1.5 },
+  { src: '/media/stack-lasers.jpg', aspect: 1.333 },
+  { src: '/media/stack-confetti.jpg', aspect: 1.5 },
+];
 
 function bezier(x1: number, y1: number, x2: number, y2: number) {
   const cx = 3 * x1;
@@ -101,12 +111,13 @@ function Masked({ text, marker, fills = false }: { text: string; marker: string;
             {fills ? (
               <>
                 <span className="ov-solid">{char}</span>
-                {FILLS.map((src, fillIndex) => (
+                {FILLS.map((fill, fillIndex) => (
                   <span
-                    key={src}
+                    key={fill.src}
                     className={fillIndex === 0 ? 'ov-ink is-on' : 'ov-ink'}
                     data-fill={fillIndex}
-                    style={{ backgroundImage: `url("${src}")` }}
+                    data-aspect={fill.aspect}
+                    style={{ backgroundImage: `url("${fill.src}")` }}
                   >
                     {char}
                   </span>
@@ -133,21 +144,21 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
 
     const place = () => {
       const wordBox = word.getBoundingClientRect();
-      const aspect = 1.5;
-      let coverW = wordBox.width;
-      let coverH = coverW / aspect;
-      if (coverH < wordBox.height) {
-        coverH = wordBox.height;
-        coverW = coverH * aspect;
-      }
-      const extraX = (coverW - wordBox.width) / 2;
-      const extraY = (coverH - wordBox.height) / 2;
-      word.style.setProperty('--fill-w', `${coverW}px`);
-      word.style.setProperty('--fill-h', `${coverH}px`);
-      word.querySelectorAll<HTMLElement>(':scope > .ov-mask').forEach((mask) => {
+      word.querySelectorAll<HTMLElement>('.ov-ink').forEach((ink) => {
+        const mask = ink.parentElement?.parentElement;
+        if (!mask) return;
+        const aspect = Number(ink.dataset.aspect) || 1.5;
+        let coverW = wordBox.width;
+        let coverH = coverW / aspect;
+        if (coverH < wordBox.height) {
+          coverH = wordBox.height;
+          coverW = coverH * aspect;
+        }
         const box = mask.getBoundingClientRect();
-        mask.style.setProperty('--fill-x', `${wordBox.left - box.left - extraX}px`);
-        mask.style.setProperty('--fill-y', `${wordBox.top - box.top - extraY}px`);
+        const extraX = (coverW - wordBox.width) / 2;
+        const extraY = (coverH - wordBox.height) / 2;
+        ink.style.backgroundSize = `${coverW}px ${coverH}px`;
+        ink.style.backgroundPosition = `${wordBox.left - box.left - extraX}px ${wordBox.top - box.top - extraY}px`;
       });
     };
 
@@ -406,8 +417,6 @@ const CSS = `
 }
 .ov-ink {
   background-repeat: no-repeat;
-  background-size: var(--fill-w) var(--fill-h);
-  background-position: var(--fill-x) var(--fill-y);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
