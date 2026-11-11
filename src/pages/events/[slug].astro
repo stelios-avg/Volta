@@ -25,6 +25,7 @@ const image = event
   : undefined;
 const upcoming = event ? isUpcoming(event) : false;
 const html = event ? renderDescription(event.description) : '';
+const fullImage = event ? event.imageUrl.replace(/\?.*$/, '') + (event.imageUrl.includes('cdn.sanity.io') ? '?auto=format&q=85' : '') : '';
 const price = event ? extractPriceAmount(event.priceText) : 0;
 
 const jsonLd = event
@@ -83,7 +84,13 @@ if (event) {
             {!upcoming && <span>Ολοκληρώθηκε</span>}
           </p>
           <h1>{event.title}</h1>
-          <img src={event.imageUrl} alt={event.imageAlt} width="1400" height="900" />
+          <button type="button" class="event-photo" data-photo aria-label="Μεγέθυνση φωτογραφίας">
+            <img src={event.imageUrl} alt={event.imageAlt} width="1400" height="900" />
+          </button>
+          <dialog class="event-lightbox" data-lightbox>
+            <button type="button" class="event-lightbox-close" data-close>Κλείσιμο</button>
+            <img src={fullImage} alt="" />
+          </dialog>
           <dl>
             <div>
               <dt>Πότε</dt>
@@ -184,15 +191,73 @@ if (event) {
     text-transform: uppercase;
   }
 
+  .event-photo {
+    display: block;
+    width: 100%;
+    margin: 28px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+
   .event-frame img {
     display: block;
     width: 100%;
     max-height: 640px;
-    margin-top: 28px;
     border: 1px solid #111;
     border-radius: 22px;
     object-fit: contain;
     background: #f4efe6;
+  }
+
+  .event-lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 64px 24px 24px;
+    border: 0;
+    background: rgba(22, 18, 12, 0.94);
+  }
+
+  :global(body:has(.event-lightbox[open]) .event-back) {
+    visibility: hidden;
+  }
+
+  .event-lightbox::backdrop {
+    background: transparent;
+  }
+
+  .event-lightbox img {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    object-fit: contain;
+    background: transparent;
+    cursor: default;
+  }
+
+  .event-lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    border: 1px solid #f3ede1;
+    border-radius: 999px;
+    background: transparent;
+    color: #f3ede1;
+    padding: 0.45rem 0.85rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
   }
 
   .event-frame dl {
@@ -304,5 +369,21 @@ if (event) {
       max-height: 420px;
       border-radius: 16px;
     }
+
+    .event-lightbox {
+      padding: 72px 12px 12px;
+    }
   }
 </style>
+
+<script>
+  const opener = document.querySelector('[data-photo]');
+  const dialog = document.querySelector('[data-lightbox]');
+  if (opener instanceof HTMLButtonElement && dialog instanceof HTMLDialogElement) {
+    opener.addEventListener('click', () => dialog.showModal());
+    dialog.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target === dialog || (target instanceof Element && target.closest('[data-close]'))) dialog.close();
+    });
+  }
+</script>
