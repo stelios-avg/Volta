@@ -10,6 +10,11 @@ interface ImportMetaEnv {
   readonly STRIPE_WEBHOOK_SECRET?: string;
 }
 
+declare module '*.html?raw' {
+  const content: string;
+  export default content;
+}
+
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }

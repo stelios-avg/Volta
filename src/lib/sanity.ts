@@ -66,8 +66,10 @@ export interface NewEventInput {
   };
 }
 
+const SANITY_PROJECT_ID = '4p9j6kpo';
+
 export function sanityProjectId(): string | undefined {
-  return env('PUBLIC_SANITY_PROJECT_ID');
+  return env('PUBLIC_SANITY_PROJECT_ID') || SANITY_PROJECT_ID;
 }
 
 export function canReadSanity(): boolean {

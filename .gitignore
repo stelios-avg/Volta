@@ -1,5 +1,7 @@
 node_modules/
 dist/
+studio-dist/
+public/studio/
 .astro/
 .vercel/
 .sanity/

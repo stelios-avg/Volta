@@ -21,6 +21,9 @@ export async function getPublishedEvents(): Promise<EventFeed> {
   }
   try {
     const events = await fetchPublishedEvents();
+    if (events.length === 0) {
+      return { events: mergeEvents(submitted, getMockEvents()), source: 'mock', reason: 'live' };
+    }
     return { events: mergeEvents(submitted, events), source: 'sanity', reason: 'live' };
   } catch (error) {
     console.error('Sanity event query failed, using sample events.', error);
