@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { json, sameOrigin } from '../../lib/http';
 import { submitForReview } from '../../lib/inbox';
+import { notifyNewSubmission } from '../../lib/notify';
 import { canWriteSanity, createPendingEvent, uploadEventImage } from '../../lib/sanity';
 import { slugify } from '../../lib/slug';
 import { parseSubmitForm } from '../../lib/submit';
@@ -47,6 +48,11 @@ export const POST: APIRoute = async ({ request, url }) => {
         description: textToBlocks(parsed.data.description),
         mainImage,
       });
+      try {
+        await notifyNewSubmission(parsed.data, id, url.origin);
+      } catch (error) {
+        console.error(error);
+      }
       return json({ ok: true, id, preview: false, tier: parsed.data.tier });
     } catch (error) {
       console.error(error);
