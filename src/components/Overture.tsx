@@ -14,12 +14,16 @@ const PHOTOS = [
 ];
 
 const NAV = [
-  { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', chip: '#e4ddd2', ink: '#4c463e' },
-  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', chip: '#f0e0c0', ink: '#7a5524' },
-  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', chip: '#6d5bd0', ink: '#ffffff' },
-  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', chip: '#d7e4ea', ink: '#35586a' },
-  { label: 'Καταχώρηση', href: '/submit', glyph: 'plus', chip: '#dce8d6', ink: '#3d6844' },
+  { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', chip: '#e4ddd2', ink: '#4c463e', wide: true },
+  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', chip: '#f0e0c0', ink: '#7a5524', wide: true },
+  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', chip: '#6d5bd0', ink: '#ffffff', wide: true },
+  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', chip: '#d7e4ea', ink: '#35586a', wide: true },
+  { label: 'Γεύσεις', href: '/categories?category=Food%20%26%20Wine', glyph: 'glass', chip: '#f3d2c4', ink: '#8a4b32', wide: false },
+  { label: 'Πολιτισμός', href: '/categories?category=Culture%20%26%20Theatre', glyph: 'columns', chip: '#e3d7f0', ink: '#5a4578', wide: false },
+  { label: 'Ύπαιθρος', href: '/categories?category=Outdoors%20%26%20Nature', glyph: 'tree', chip: '#d5e6d2', ink: '#2f6a45', wide: false },
+  { label: 'Καταχώρηση', href: '/submit', glyph: 'plus', chip: '#dce8d6', ink: '#3d6844', wide: true },
 ];
+const NAV_FOCUS = NAV.findIndex((item) => item.glyph === 'music');
 
 function NavGlyph({ name }: { name: string }) {
   const props = {
@@ -65,6 +69,30 @@ function NavGlyph({ name }: { name: string }) {
         <circle cx="16.5" cy="9" r="2.2" />
         <path d="M3.5 19c.7-2.7 2.9-4.2 5.5-4.2s4.8 1.5 5.5 4.2" />
         <path d="M14.2 15.1c1.5-.3 3 .2 4 1.4.8 1 1.3 2.1 1.6 2.5" />
+      </svg>
+    );
+  }
+  if (name === 'glass') {
+    return (
+      <svg {...props}>
+        <path d="M7.5 3h9v1.5c0 3-2 5.2-4.5 5.2S7.5 7.5 7.5 4.5V3z" />
+        <path d="M12 9.7V18M8.5 21h7" />
+      </svg>
+    );
+  }
+  if (name === 'columns') {
+    return (
+      <svg {...props}>
+        <path d="M4 20h16M6.5 20V9M12 20V9M17.5 20V9M4 9h16M8 9V5h8v4" />
+      </svg>
+    );
+  }
+  if (name === 'tree') {
+    return (
+      <svg {...props}>
+        <path d="M12 21v-4" />
+        <path d="M12 3 5.5 13h13z" />
+        <path d="M12 8 7 17h10z" />
       </svg>
     );
   }
@@ -334,29 +362,92 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
     };
   }, [skipIntro]);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const nav = root.querySelector<HTMLElement>('.ov-nav');
+    if (!nav) return;
+    const slots = [...nav.querySelectorAll<HTMLElement>('.ov-slot')];
+    const mobileQuery = window.matchMedia('(max-width: 720px)');
+    let centered = false;
+
+    const paint = () => {
+      if (!mobileQuery.matches) return;
+      const mid = nav.scrollTop + nav.clientHeight / 2;
+      let best = 0;
+      let bestDist = Number.POSITIVE_INFINITY;
+      slots.forEach((slot, index) => {
+        const center = slot.offsetTop + slot.offsetHeight / 2;
+        const dist = Math.abs(center - mid);
+        if (dist < bestDist) {
+          best = index;
+          bestDist = dist;
+        }
+      });
+      slots.forEach((slot, index) => {
+        const link = slot.querySelector<HTMLElement>('.ov-link');
+        if (!link) return;
+        const depth = String(Math.min(2, Math.abs(index - best)));
+        if (link.dataset.depth !== depth) link.dataset.depth = depth;
+      });
+    };
+
+    const centerOn = (index: number) => {
+      const slot = slots[index];
+      if (!slot) return;
+      nav.scrollTop = slot.offsetTop - (nav.clientHeight - slot.offsetHeight) / 2;
+    };
+
+    const sync = () => {
+      if (!mobileQuery.matches) {
+        nav.scrollTop = 0;
+        centered = false;
+        return;
+      }
+      if (!centered) {
+        centerOn(NAV_FOCUS);
+        centered = true;
+      }
+      paint();
+    };
+
+    sync();
+    const frame = requestAnimationFrame(sync);
+    nav.addEventListener('scroll', paint, { passive: true });
+    mobileQuery.addEventListener('change', sync);
+    return () => {
+      cancelAnimationFrame(frame);
+      nav.removeEventListener('scroll', paint);
+      mobileQuery.removeEventListener('change', sync);
+    };
+  }, []);
+
   return (
     <div className={skipIntro ? 'ov is-ready' : 'ov'} ref={rootRef} id="top">
       <style>{CSS}</style>
       <section className="ov-hero" aria-label="What's On Cyprus">
         <nav className="ov-nav" aria-label="Κύρια">
+          <span className="ov-nav-pad" aria-hidden="true" />
           {NAV.map((item, index) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="ov-link"
-              data-depth={Math.abs(index - (NAV.length - 1) / 2)}
-              style={{ ['--chip' as string]: item.chip, ['--ink' as string]: item.ink }}
-            >
-              <span className="ov-ico" aria-hidden="true">
-                <NavGlyph name={item.glyph} />
-              </span>
-              <span className="ov-mask">
-                <span className="ov-rise" data-ov="line">
-                  {item.label}
+            <span key={item.href} className={item.wide ? 'ov-slot' : 'ov-slot ov-slot-more'}>
+              <a
+                href={item.href}
+                className="ov-link"
+                data-depth={Math.min(2, Math.abs(index - NAV_FOCUS))}
+                style={{ ['--chip' as string]: item.chip, ['--ink' as string]: item.ink }}
+              >
+                <span className="ov-ico" aria-hidden="true">
+                  <NavGlyph name={item.glyph} />
                 </span>
-              </span>
-            </a>
+                <span className="ov-mask">
+                  <span className="ov-rise" data-ov="line">
+                    {item.label}
+                  </span>
+                </span>
+              </a>
+            </span>
           ))}
+          <span className="ov-nav-pad" aria-hidden="true" />
         </nav>
         <h1 className="ov-hero-word" aria-label={WORD}>
           <Masked text={WORD} marker="hero" fills />
@@ -423,6 +514,13 @@ const CSS = `
   letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
+}
+.ov-slot {
+  display: contents;
+}
+.ov-slot-more,
+.ov-nav-pad {
+  display: none;
 }
 .ov-link {
   display: inline-flex;
@@ -573,52 +671,75 @@ const CSS = `
     letter-spacing: -0.06em;
   }
   .ov-nav {
+    --ov-nav-h: 228px;
+    --ov-slot-h: 46px;
+    position: relative;
     width: min(100%, 360px);
+    height: var(--ov-nav-h);
     margin-inline: auto;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     gap: 0;
-    padding: 2px 0 6px;
+    padding: 0;
     border: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    touch-action: pan-y;
     font-size: 16px;
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.2;
     text-transform: none;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
   }
+  .ov-nav::-webkit-scrollbar { display: none; }
+  .ov-nav-pad {
+    display: block;
+    flex: none;
+    width: 100%;
+    height: calc((var(--ov-nav-h) - var(--ov-slot-h)) / 2);
+  }
+  .ov-slot,
+  .ov-slot-more {
+    display: grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+    width: 100%;
+    height: var(--ov-slot-h);
+    scroll-snap-align: center;
+    scroll-snap-stop: normal;
+  }
+  .ov-slot:has([data-depth="1"]) { z-index: 3; }
+  .ov-slot:has([data-depth="0"]) { z-index: 5; }
   .ov-nav .ov-mask {
     line-height: 1.25;
     padding: 0.08em 0 0.12em;
   }
   .ov-link {
-    width: 86%;
-    height: 50px;
-    margin-top: -11px;
+    width: 74%;
+    height: 46px;
     justify-content: flex-start;
     gap: 12px;
     padding: 0 16px 0 10px;
     border-radius: 16px;
-    background: #f4f0e8;
-    color: #2a261f;
-    box-shadow: 0 8px 16px rgba(22, 18, 12, 0.06);
-  }
-  .ov-link:first-child { margin-top: 0; }
-  .ov-link[data-depth="2"] {
-    z-index: 1;
-    width: 74%;
-    height: 46px;
     background: #b7b1a6;
     color: #1c1914;
+    box-shadow: 0 8px 16px rgba(22, 18, 12, 0.06);
+    transition: width 0.18s ease, height 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
   .ov-link[data-depth="1"] {
-    z-index: 2;
     width: 88%;
-    background: rgba(255, 252, 247, 0.82);
+    height: 50px;
+    background: rgba(255, 252, 247, 0.92);
     color: #2c2823;
   }
   .ov-link[data-depth="0"] {
-    z-index: 5;
     width: 100%;
     height: 58px;
     background: #fff;
