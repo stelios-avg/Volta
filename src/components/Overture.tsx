@@ -14,25 +14,25 @@ const PHOTOS = [
 ];
 
 const NAV = [
-  { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', chip: '#e4ddd2', ink: '#4c463e', wide: true },
-  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', chip: '#f0e0c0', ink: '#7a5524', wide: true },
-  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', chip: '#6d5bd0', ink: '#ffffff', wide: true },
-  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', chip: '#d7e4ea', ink: '#35586a', wide: true },
-  { label: 'Γεύσεις', href: '/categories?category=Food%20%26%20Wine', glyph: 'glass', chip: '#f3d2c4', ink: '#8a4b32', wide: false },
-  { label: 'Πολιτισμός', href: '/categories?category=Culture%20%26%20Theatre', glyph: 'columns', chip: '#e3d7f0', ink: '#5a4578', wide: false },
-  { label: 'Ύπαιθρος', href: '/categories?category=Outdoors%20%26%20Nature', glyph: 'tree', chip: '#d5e6d2', ink: '#2f6a45', wide: false },
-  { label: 'Καταχώρηση', href: '/submit', glyph: 'plus', chip: '#dce8d6', ink: '#3d6844', wide: true },
+  { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', wide: true },
+  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', wide: true },
+  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', wide: true },
+  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', wide: true },
+  { label: 'Γεύσεις', href: '/categories?category=Food%20%26%20Wine', glyph: 'glass', wide: false },
+  { label: 'Πολιτισμός', href: '/categories?category=Culture%20%26%20Theatre', glyph: 'columns', wide: false },
+  { label: 'Ύπαιθρος', href: '/categories?category=Outdoors%20%26%20Nature', glyph: 'tree', wide: false },
+  { label: 'Καταχώρηση', href: '/submit', glyph: 'plus', wide: true },
 ];
 const NAV_FOCUS = NAV.findIndex((item) => item.glyph === 'music');
 
 function NavGlyph({ name }: { name: string }) {
   const props = {
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
     viewBox: '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 2,
+    strokeWidth: 1.5,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true as const,
@@ -40,65 +40,65 @@ function NavGlyph({ name }: { name: string }) {
   if (name === 'calendar') {
     return (
       <svg {...props}>
-        <rect x="4" y="5" width="16" height="15" rx="2" />
-        <path d="M8 3.5v3M16 3.5v3M4 10h16" />
+        <rect x="4" y="5" width="16" height="15" rx="2.5" />
+        <path d="M4 10h16" />
+        <path d="M8 5V3.5M16 5V3.5" />
       </svg>
     );
   }
   if (name === 'sun') {
     return (
       <svg {...props}>
-        <circle cx="12" cy="12" r="3.5" />
-        <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 4.5v1.8M12 17.7v1.8M4.5 12h1.8M17.7 12h1.8M6.7 6.7l1.3 1.3M16 16l1.3 1.3M17.3 6.7 16 8M8 16l-1.3 1.3" />
       </svg>
     );
   }
   if (name === 'music') {
     return (
       <svg {...props}>
-        <path d="M9 18V6l10-2v12" />
-        <circle cx="7" cy="18" r="2.4" />
-        <circle cx="17" cy="16" r="2.4" />
+        <path d="M7 16.5V8M12 18V6M17 16.5V10" />
       </svg>
     );
   }
   if (name === 'people') {
     return (
       <svg {...props}>
-        <circle cx="9" cy="8" r="3" />
-        <circle cx="16.5" cy="9" r="2.2" />
-        <path d="M3.5 19c.7-2.7 2.9-4.2 5.5-4.2s4.8 1.5 5.5 4.2" />
-        <path d="M14.2 15.1c1.5-.3 3 .2 4 1.4.8 1 1.3 2.1 1.6 2.5" />
+        <circle cx="9" cy="8.5" r="2.2" />
+        <circle cx="15.5" cy="9.2" r="1.7" />
+        <path d="M4.8 18.5c.6-2.4 2.3-3.6 4.2-3.6s3.6 1.2 4.2 3.6" />
+        <path d="M14.2 15.4c1.1-.3 2.3 0 3.1 1 .6.8 1 1.5 1.2 2.1" />
       </svg>
     );
   }
   if (name === 'glass') {
     return (
       <svg {...props}>
-        <path d="M7.5 3h9v1.5c0 3-2 5.2-4.5 5.2S7.5 7.5 7.5 4.5V3z" />
-        <path d="M12 9.7V18M8.5 21h7" />
+        <path d="M8 4h8l-2.1 6.4a2.1 2.1 0 0 1-3.8 0L8 4z" />
+        <path d="M12 12.5V18M9.2 20h5.6" />
       </svg>
     );
   }
   if (name === 'columns') {
     return (
       <svg {...props}>
-        <path d="M4 20h16M6.5 20V9M12 20V9M17.5 20V9M4 9h16M8 9V5h8v4" />
+        <path d="M4.5 9 12 4l7.5 5" />
+        <path d="M7.5 9.5v9M16.5 9.5v9" />
+        <path d="M5 18.5h14" />
       </svg>
     );
   }
   if (name === 'tree') {
     return (
       <svg {...props}>
-        <path d="M12 21v-4" />
-        <path d="M12 3 5.5 13h13z" />
-        <path d="M12 8 7 17h10z" />
+        <path d="M3.5 17.5h17" />
+        <path d="M4.5 17.5 10 8l2.6 3.4L15 8.8l4.5 8.7" />
       </svg>
     );
   }
   return (
     <svg {...props}>
-      <path d="M12 6v12M6 12h12" />
+      <path d="M12 6.5v11M6.5 12h11" />
     </svg>
   );
 }
@@ -434,7 +434,6 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
                 href={item.href}
                 className="ov-link"
                 data-depth={Math.min(2, Math.abs(index - NAV_FOCUS))}
-                style={{ ['--chip' as string]: item.chip, ['--ink' as string]: item.ink }}
               >
                 <span className="ov-ico" aria-hidden="true">
                   <NavGlyph name={item.glyph} />
@@ -751,11 +750,15 @@ const CSS = `
     display: grid;
     place-items: center;
     flex: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    background: var(--chip);
-    color: var(--ink);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #f4efe6;
+    color: #16120c;
+  }
+  .ov-link[data-depth="0"] .ov-ico {
+    background: #16120c;
+    color: #f4efe6;
   }
   .pl-img {
     width: 168px;
