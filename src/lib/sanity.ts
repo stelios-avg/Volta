@@ -186,7 +186,7 @@ export async function createPendingEvent(input: NewEventInput): Promise<string> 
     organizerContact: input.organizerContact,
     mainImage: input.mainImage,
     isFeatured: false,
-    status: 'pending',
+    status: 'published',
   });
   return id;
 }

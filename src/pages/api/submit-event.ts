@@ -36,39 +36,33 @@ export const POST: APIRoute = async ({ request, url }) => {
 
   const slug = slugify(parsed.data.title);
   const imageFile = image instanceof File && image.size > 0 ? image : undefined;
-  try {
-    const review = await submitForReview(parsed.data, slug, imageFile, url.origin);
-    return json({ ok: true, id: review.id, preview: false, emailed: review.emailed, tier: parsed.data.tier });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '';
-    if (message === 'resend_not_configured') {
-      return json({ ok: false, errors: ['Λείπει το κλειδί του Resend στον server.'] }, 503);
+
+  if (canWriteSanity()) {
+    try {
+      const mainImage = imageFile ? await uploadEventImage(imageFile) : undefined;
+      if (mainImage) mainImage.alt = parsed.data.title;
+      const id = await createPendingEvent({
+        ...parsed.data,
+        slug,
+        description: textToBlocks(parsed.data.description),
+        mainImage,
+      });
+      return json({ ok: true, id, preview: false, tier: parsed.data.tier });
+    } catch (error) {
+      console.error(error);
+      return json({ ok: false, errors: ['Η αποθήκευση στο Sanity απέτυχε. Δοκίμασε ξανά.'] }, 502);
     }
-    if (message === 'store_not_configured') {
-      return json({ ok: false, errors: ['Λείπει η βάση για να κρατηθεί η καταχώρηση.'] }, 503);
-    }
-    if (message === 'resend_failed') {
-      return json({ ok: false, errors: ['Η καταχώρηση κρατήθηκε, αλλά το email δεν στάλθηκε.'] }, 502);
-    }
-    if (message !== 'supabase_not_configured') console.error(error);
   }
 
-  if (!canWriteSanity()) {
-    return json({ ok: true, id: `preview-${slug}`, preview: true, tier: parsed.data.tier });
+  if (process.env.RESEND_API_KEY && process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY) {
+    try {
+      const review = await submitForReview(parsed.data, slug, imageFile, url.origin);
+      return json({ ok: true, id: review.id, preview: false, emailed: review.emailed, tier: parsed.data.tier });
+    } catch (error) {
+      console.error(error);
+      return json({ ok: false, errors: ['Η αποστολή για έγκριση απέτυχε. Δοκίμασε ξανά.'] }, 502);
+    }
   }
 
-  try {
-    const mainImage = image instanceof File && image.size > 0 ? await uploadEventImage(image) : undefined;
-    if (mainImage) mainImage.alt = parsed.data.title;
-    const id = await createPendingEvent({
-      ...parsed.data,
-      slug,
-      description: textToBlocks(parsed.data.description),
-      mainImage,
-    });
-    return json({ ok: true, id, preview: false, tier: parsed.data.tier });
-  } catch (error) {
-    console.error(error);
-    return json({ ok: false, errors: ['Η αποθήκευση στο Sanity απέτυχε. Δοκίμασε ξανά.'] }, 502);
-  }
+  return json({ ok: true, id: `preview-${slug}`, preview: true, tier: parsed.data.tier });
 };
