@@ -14,12 +14,66 @@ const PHOTOS = [
 ];
 
 const NAV = [
-  { label: 'Εκδηλώσεις', href: '/browse' },
-  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals' },
-  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife' },
-  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family' },
-  { label: 'Καταχώρηση', href: '/submit' },
+  { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', chip: '#e4ddd2', ink: '#4c463e' },
+  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', chip: '#f0e0c0', ink: '#7a5524' },
+  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', chip: '#6d5bd0', ink: '#ffffff' },
+  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', chip: '#d7e4ea', ink: '#35586a' },
+  { label: 'Καταχώρηση', href: '/submit', glyph: 'plus', chip: '#dce8d6', ink: '#3d6844' },
 ];
+
+function NavGlyph({ name }: { name: string }) {
+  const props = {
+    width: 16,
+    height: 16,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 2,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true as const,
+  };
+  if (name === 'calendar') {
+    return (
+      <svg {...props}>
+        <rect x="4" y="5" width="16" height="15" rx="2" />
+        <path d="M8 3.5v3M16 3.5v3M4 10h16" />
+      </svg>
+    );
+  }
+  if (name === 'sun') {
+    return (
+      <svg {...props}>
+        <circle cx="12" cy="12" r="3.5" />
+        <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6" />
+      </svg>
+    );
+  }
+  if (name === 'music') {
+    return (
+      <svg {...props}>
+        <path d="M9 18V6l10-2v12" />
+        <circle cx="7" cy="18" r="2.4" />
+        <circle cx="17" cy="16" r="2.4" />
+      </svg>
+    );
+  }
+  if (name === 'people') {
+    return (
+      <svg {...props}>
+        <circle cx="9" cy="8" r="3" />
+        <circle cx="16.5" cy="9" r="2.2" />
+        <path d="M3.5 19c.7-2.7 2.9-4.2 5.5-4.2s4.8 1.5 5.5 4.2" />
+        <path d="M14.2 15.1c1.5-.3 3 .2 4 1.4.8 1 1.3 2.1 1.6 2.5" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...props}>
+      <path d="M12 6v12M6 12h12" />
+    </svg>
+  );
+}
 
 const LINE = 'Βρες πού να βολτάρεις σήμερα';
 const FILLS = [
@@ -285,8 +339,17 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
       <style>{CSS}</style>
       <section className="ov-hero" aria-label="What's On Cyprus">
         <nav className="ov-nav" aria-label="Κύρια">
-          {NAV.map((item) => (
-            <a key={item.href} href={item.href} className="ov-link">
+          {NAV.map((item, index) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="ov-link"
+              data-depth={Math.abs(index - (NAV.length - 1) / 2)}
+              style={{ ['--chip' as string]: item.chip, ['--ink' as string]: item.ink }}
+            >
+              <span className="ov-ico" aria-hidden="true">
+                <NavGlyph name={item.glyph} />
+              </span>
               <span className="ov-mask">
                 <span className="ov-rise" data-ov="line">
                   {item.label}
@@ -368,6 +431,9 @@ const CSS = `
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
+}
+.ov-ico {
+  display: none;
 }
 .ov-hero-word {
   display: flex;
@@ -494,16 +560,81 @@ const CSS = `
   font-variant-numeric: tabular-nums;
 }
 @media (max-width: 720px) {
-  .ov-hero { padding: 28px 20px 28px; }
+  .ov-hero {
+    padding: 18px 16px 22px;
+    overflow-x: clip;
+    container-type: inline-size;
+  }
+  .ov-hero-word {
+    width: 100%;
+    min-width: 0;
+    font-size: clamp(80px, 23vw, 104px);
+    font-size: clamp(80px, 26.5cqi, 124px);
+    letter-spacing: -0.06em;
+  }
   .ov-nav {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px 22px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #16120c;
-    font-size: 15px;
+    width: min(100%, 360px);
+    margin-inline: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 2px 0 6px;
+    border: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-transform: none;
+  }
+  .ov-nav .ov-mask {
+    line-height: 1.25;
+    padding: 0.08em 0 0.12em;
+  }
+  .ov-link {
+    width: 86%;
+    height: 50px;
+    margin-top: -11px;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 16px 0 10px;
+    border-radius: 16px;
+    background: #f4f0e8;
+    color: #2a261f;
+    box-shadow: 0 8px 16px rgba(22, 18, 12, 0.06);
+  }
+  .ov-link:first-child { margin-top: 0; }
+  .ov-link[data-depth="2"] {
+    z-index: 1;
+    width: 74%;
+    height: 46px;
+    background: #b7b1a6;
+    color: #1c1914;
+  }
+  .ov-link[data-depth="1"] {
+    z-index: 2;
+    width: 88%;
+    background: rgba(255, 252, 247, 0.82);
+    color: #2c2823;
+  }
+  .ov-link[data-depth="0"] {
+    z-index: 5;
+    width: 100%;
+    height: 58px;
+    background: #fff;
+    color: #16120c;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    box-shadow: 0 16px 32px rgba(22, 18, 12, 0.16);
+  }
+  .ov-ico {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--chip);
+    color: var(--ink);
   }
   .pl-img {
     width: 168px;
