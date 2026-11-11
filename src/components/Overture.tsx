@@ -658,7 +658,7 @@ const CSS = `
 }
 @media (max-width: 720px) {
   .ov-hero {
-    padding: 18px 16px 22px;
+    padding: 18px 16px 56px;
     overflow-x: clip;
     container-type: inline-size;
   }
