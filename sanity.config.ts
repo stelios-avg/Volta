@@ -12,6 +12,11 @@ export default defineConfig({
   basePath: '/studio',
   projectId,
   dataset,
-  plugins: [structureTool(), visionTool()],
+  plugins: [
+    structureTool({
+      structure: (S) => S.documentTypeList('event').title('Εκδηλώσεις'),
+    }),
+    visionTool(),
+  ],
   schema: { types: schemaTypes },
 });
