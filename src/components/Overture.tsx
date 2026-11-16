@@ -659,7 +659,7 @@ const CSS = `
 @media (max-width: 720px) {
   .ov-hero {
     grid-template-rows: auto 1fr auto;
-    padding: 56px 16px 56px;
+    padding: 148px 16px 56px;
     overflow-x: clip;
     container-type: inline-size;
   }
