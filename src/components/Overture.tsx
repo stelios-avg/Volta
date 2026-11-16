@@ -658,8 +658,8 @@ const CSS = `
 }
 @media (max-width: 720px) {
   .ov-hero {
-    grid-template-rows: auto auto 1fr;
-    padding: 18px 16px 56px;
+    grid-template-rows: auto 1fr auto;
+    padding: 56px 16px 56px;
     overflow-x: clip;
     container-type: inline-size;
   }
@@ -679,6 +679,8 @@ const CSS = `
     --ov-nav-h: 228px;
     --ov-slot-h: 46px;
     order: 2;
+    align-self: end;
+    margin-bottom: 18px;
     position: relative;
     width: min(100%, 360px);
     height: var(--ov-nav-h);
