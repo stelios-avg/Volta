@@ -35,11 +35,13 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
 <html lang="el">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {robots && <meta name="robots" content={robots} />}
-    <meta name="theme-color" content="#17232b" />
+    <meta name="theme-color" content="#e7e0d1" />
+    <meta name="theme-color" content="#e7e0d1" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="canonical" href={canonical} />
     <meta property="og:locale" content="el_CY" />
