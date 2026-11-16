@@ -658,20 +658,27 @@ const CSS = `
 }
 @media (max-width: 720px) {
   .ov-hero {
+    grid-template-rows: auto auto 1fr;
     padding: 18px 16px 56px;
     overflow-x: clip;
     container-type: inline-size;
   }
   .ov-hero-word {
+    order: 1;
     width: 100%;
     min-width: 0;
     font-size: clamp(80px, 23vw, 104px);
     font-size: clamp(80px, 26.5cqi, 124px);
     letter-spacing: -0.06em;
   }
+  .ov-foot {
+    order: 3;
+    align-self: end;
+  }
   .ov-nav {
     --ov-nav-h: 228px;
     --ov-slot-h: 46px;
+    order: 2;
     position: relative;
     width: min(100%, 360px);
     height: var(--ov-nav-h);
