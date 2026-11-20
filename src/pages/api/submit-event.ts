@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request, url }) => {
       const id = await createPendingEvent({
         ...parsed.data,
         slug,
-        description: textToBlocks(parsed.data.description),
+        description: parsed.data.description ? textToBlocks(parsed.data.description) : [],
         mainImage,
       });
       try {

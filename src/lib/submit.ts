@@ -45,8 +45,8 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
   if (title.length < 3 || title.length > 140) errors.push('Ο τίτλος χρειάζεται 3 έως 140 χαρακτήρες.');
 
   const description = field(form, 'description');
-  if (description.length < 20 || description.length > 4000) {
-    errors.push('Η περιγραφή χρειάζεται 20 έως 4000 χαρακτήρες.');
+  if (description.length > 4000) {
+    errors.push('Η περιγραφή μπορεί να έχει έως 4000 χαρακτήρες.');
   }
 
   const startDate = cyprusLocalToISO(field(form, 'startDate'));
