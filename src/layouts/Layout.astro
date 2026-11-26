@@ -72,43 +72,5 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
     <a class="studio-credit" href="https://www.pixel-studio.design/" target="_blank" rel="noopener noreferrer">
       powered by Pixel-Studio
     </a>
-    <script>
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!reducedMotion) {
-        const layer = document.createElement('div');
-        layer.className = 'ripple-layer';
-        document.body.appendChild(layer);
-
-        const removeWhenDone = (node: HTMLElement) => {
-          node.addEventListener('animationend', () => node.remove());
-        };
-
-        window.addEventListener('pointerdown', (event) => {
-          if (event.button !== 0) return;
-          const target = event.target;
-          if (target instanceof Element && target.closest('input, textarea, select, option, .file-pick')) return;
-          const touch = event.pointerType === 'touch';
-          if (!touch) {
-            const drop = document.createElement('span');
-            drop.className = 'ripple-drop';
-            drop.style.left = `${event.clientX}px`;
-            drop.style.top = `${event.clientY}px`;
-            layer.appendChild(drop);
-            removeWhenDone(drop);
-          }
-          const rings = touch ? [0] : [0, 150];
-          rings.forEach((delay, index) => {
-            const ring = document.createElement('span');
-            ring.className = 'ripple-ring';
-            ring.style.left = `${event.clientX}px`;
-            ring.style.top = `${event.clientY}px`;
-            ring.style.animationDelay = `${delay}ms`;
-            ring.style.setProperty('--ripple-scale', touch ? '5' : String(7 + index * 4));
-            layer.appendChild(ring);
-            removeWhenDone(ring);
-          });
-        });
-      }
-    </script>
   </body>
 </html>
