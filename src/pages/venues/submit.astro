@@ -10,7 +10,7 @@ const preview = Astro.url.searchParams.get('preview') === '1';
 Astro.response.headers.set('Cache-Control', 'private, no-store');
 ---
 
-<Layout title="Καταχώρηση χώρου" description="Βάλε τον χώρο σου με τις δραστηριότητές του στη Volta." robots={status ? 'noindex, nofollow' : undefined} bare>
+<Layout title="Νέα καταχώριση" description="Βάλε τον χώρο σου με τις δραστηριότητές του στη Volta." robots={status ? 'noindex, nofollow' : undefined} bare>
   <div class="submit-page">
     <a href="/venues" class="submit-back">
       <span aria-hidden="true">←</span>
@@ -18,7 +18,7 @@ Astro.response.headers.set('Cache-Control', 'private, no-store');
     </a>
     <section class="submit-frame">
       <p class="submit-kicker">Χώρος</p>
-      <h1>Νέος χώρος</h1>
+      <h1>Νέα καταχώριση</h1>
       <p class="submit-lead">Για όσους έχουν έναν χώρο με δραστηριότητες. Δωρεάν καταχώρηση. Δημοσιεύεται μετά την έγκριση.</p>
       {
         status === 'sent' ? (
@@ -72,5 +72,6 @@ Astro.response.headers.set('Cache-Control', 'private, no-store');
   @media (max-width: 720px) {
     .submit-page { padding: 104px 12px 48px; }
     .submit-frame { border-radius: 22px; padding: 28px 18px 24px; }
+    .submit-frame h1 { font-size: clamp(28px, 8.6vw, 40px); }
   }
 </style>
