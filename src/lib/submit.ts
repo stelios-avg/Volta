@@ -50,16 +50,19 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
     errors.push('Η περιγραφή μπορεί να έχει έως 4000 χαρακτήρες.');
   }
 
-  const startDate = cyprusLocalToISO(field(form, 'startDate'));
-  if (!startDate) errors.push('Συμπλήρωσε έγκυρη ημερομηνία έναρξης.');
+  const stamp = (dayName: string, timeName: string) => {
+    const day = field(form, dayName);
+    const time = field(form, timeName).slice(0, 5);
+    if (!day && !time) return undefined;
+    if (!day || !time) return null;
+    return cyprusLocalToISO(`${day}T${time}`);
+  };
 
-  const endRaw = field(form, 'endDate');
-  let endDate: string | undefined;
-  if (endRaw) {
-    const parsedEnd = cyprusLocalToISO(endRaw);
-    if (!parsedEnd) errors.push('Η ημερομηνία λήξης δεν είναι έγκυρη.');
-    else endDate = parsedEnd;
-  }
+  const startDate = stamp('startDay', 'startTime');
+  if (!startDate) errors.push('Συμπλήρωσε ημέρα και ώρα έναρξης.');
+
+  const endDate = stamp('endDay', 'endTime');
+  if (endDate === null) errors.push('Η λήξη θέλει και ημέρα και ώρα.');
   if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
     errors.push('Η λήξη είναι πριν από την έναρξη.');
   }
@@ -101,7 +104,7 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
       title,
       description,
       startDate,
-      endDate,
+      endDate: endDate || undefined,
       district,
       locationName,
       googleMapsUrl,

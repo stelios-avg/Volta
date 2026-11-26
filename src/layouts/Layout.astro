@@ -85,20 +85,25 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
 
         window.addEventListener('pointerdown', (event) => {
           if (event.button !== 0) return;
-          const drop = document.createElement('span');
-          drop.className = 'ripple-drop';
-          drop.style.left = `${event.clientX}px`;
-          drop.style.top = `${event.clientY}px`;
-          layer.appendChild(drop);
-          removeWhenDone(drop);
-
-          [0, 150, 300].forEach((delay, index) => {
+          const target = event.target;
+          if (target instanceof Element && target.closest('input, textarea, select, option, .file-pick')) return;
+          const touch = event.pointerType === 'touch';
+          if (!touch) {
+            const drop = document.createElement('span');
+            drop.className = 'ripple-drop';
+            drop.style.left = `${event.clientX}px`;
+            drop.style.top = `${event.clientY}px`;
+            layer.appendChild(drop);
+            removeWhenDone(drop);
+          }
+          const rings = touch ? [0] : [0, 150];
+          rings.forEach((delay, index) => {
             const ring = document.createElement('span');
             ring.className = 'ripple-ring';
             ring.style.left = `${event.clientX}px`;
             ring.style.top = `${event.clientY}px`;
             ring.style.animationDelay = `${delay}ms`;
-            ring.style.setProperty('--ripple-scale', String(8 + index * 6));
+            ring.style.setProperty('--ripple-scale', touch ? '5' : String(7 + index * 4));
             layer.appendChild(ring);
             removeWhenDone(ring);
           });

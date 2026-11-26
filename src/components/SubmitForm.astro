@@ -11,7 +11,14 @@ import { districtLabels } from '../lib/labels';
     </label>
   </div>
 
-  <fieldset class="submit-block">
+  <div class="submit-steps" role="tablist" aria-label="Βήματα καταχώρισης">
+    <button type="button" data-step-jump="what" aria-selected="true">Τι</button>
+    <button type="button" data-step-jump="when" data-for="event">Πότε</button>
+    <button type="button" data-step-jump="where">Πού</button>
+    <button type="button" data-step-jump="extra">Λεπτομέρειες</button>
+  </div>
+
+  <fieldset class="submit-block is-on" data-step-id="what">
     <legend>Τι</legend>
     <label class="field">
       <span data-label-event="Τίτλος" data-label-venue="Όνομα χώρου">Τίτλος</span>
@@ -41,21 +48,31 @@ import { districtLabels } from '../lib/labels';
     </div>
   </fieldset>
 
-  <fieldset class="submit-block" data-for="event">
+  <fieldset class="submit-block" data-step-id="when" data-for="event">
     <legend>Πότε</legend>
     <div class="submit-grid">
       <label class="field">
-        <span>Έναρξη</span>
-        <input name="startDate" type="datetime-local" required />
+        <span>Ημέρα έναρξης</span>
+        <input name="startDay" type="date" required />
       </label>
       <label class="field">
-        <span>Λήξη (προαιρετικά)</span>
-        <input name="endDate" type="datetime-local" />
+        <span>Ώρα έναρξης</span>
+        <input name="startTime" type="time" required />
+      </label>
+    </div>
+    <div class="submit-grid">
+      <label class="field">
+        <span>Ημέρα λήξης</span>
+        <input name="endDay" type="date" />
+      </label>
+      <label class="field">
+        <span>Ώρα λήξης</span>
+        <input name="endTime" type="time" />
       </label>
     </div>
   </fieldset>
 
-  <fieldset class="submit-block">
+  <fieldset class="submit-block" data-step-id="where">
     <legend>Πού</legend>
     <div class="submit-grid">
       <label class="field">
@@ -76,7 +93,7 @@ import { districtLabels } from '../lib/labels';
     </label>
   </fieldset>
 
-  <fieldset class="submit-block">
+  <fieldset class="submit-block" data-step-id="extra">
     <legend>Λεπτομέρειες</legend>
     <div class="submit-grid">
       <label class="field" data-for="event">
@@ -93,8 +110,12 @@ import { districtLabels } from '../lib/labels';
       </label>
     </div>
     <label class="field">
-      <span>Εικόνα (JPG, PNG ή WebP, έως 4MB)</span>
-      <input name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+      <span>Εικόνα, έως 4MB</span>
+      <span class="file-pick">
+        <input class="file-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+        <span class="file-button">Διάλεξε φωτογραφία</span>
+        <span class="file-name">JPG, PNG ή WebP</span>
+      </span>
     </label>
     <label class="field">
       <span>Email ή τηλέφωνο επικοινωνίας</span>
@@ -108,33 +129,78 @@ import { districtLabels } from '../lib/labels';
 
   <p id="form-error" hidden class="submit-error"></p>
 
-  <button id="submit-button" type="submit" class="submit-send">Υποβολή για έλεγχο</button>
+  <div class="submit-move">
+    <button id="submit-prev" type="button" class="submit-prev" hidden>Πίσω</button>
+    <button id="submit-next" type="button" class="submit-next">Συνέχεια</button>
+    <button id="submit-button" type="submit" class="submit-send" hidden>Υποβολή για έλεγχο</button>
+  </div>
 </form>
 
 <script>
   const form = document.querySelector<HTMLFormElement>('#submit-form');
   const errorBox = document.querySelector<HTMLElement>('#form-error');
   const button = document.querySelector<HTMLButtonElement>('#submit-button');
+  const prev = document.querySelector<HTMLButtonElement>('#submit-prev');
+  const next = document.querySelector<HTMLButtonElement>('#submit-next');
 
   const doorSelect = form?.querySelector<HTMLSelectElement>('select[name="category"]');
   const subSelect = form?.querySelector<HTMLSelectElement>('select[name="subcategory"]');
+  const subOptions = subSelect ? Array.from(subSelect.options).map((option) => option.cloneNode(true) as HTMLOptionElement) : [];
+  let step = 0;
 
   const selectedListing = () => {
     const option = subSelect?.selectedOptions[0];
     return option?.dataset.listing === 'venue' ? 'venue' : 'event';
   };
 
+  const panels = () =>
+    form ? [...form.querySelectorAll<HTMLFieldSetElement>('fieldset.submit-block')].filter((panel) => !panel.hidden) : [];
+
+  const fieldsIn = (panel: HTMLElement) =>
+    [...panel.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea')].filter(
+      (field) => field.willValidate,
+    );
+
+  const panelIsValid = (panel: HTMLElement) => {
+    const invalid = fieldsIn(panel).find((field) => !field.checkValidity());
+    invalid?.reportValidity();
+    return !invalid;
+  };
+
+  const paint = () => {
+    if (!form || !prev || !next || !button) return;
+    const list = panels();
+    if (step >= list.length) step = Math.max(0, list.length - 1);
+    list.forEach((panel, index) => panel.classList.toggle('is-on', index === step));
+    form.querySelectorAll<HTMLButtonElement>('[data-step-jump]').forEach((jump) => {
+      const current = list[step]?.dataset.stepId === jump.dataset.stepJump;
+      jump.setAttribute('aria-selected', current ? 'true' : 'false');
+    });
+    prev.hidden = step === 0;
+    next.hidden = step >= list.length - 1;
+    button.hidden = step < list.length - 1;
+  };
+
+  const revealInvalid = () => {
+    const list = panels();
+    const index = list.findIndex((panel) => !panelIsValid(panel));
+    if (index === -1) return true;
+    step = index;
+    paint();
+    panelIsValid(list[index]);
+    return false;
+  };
+
   const applyListing = () => {
     if (!form || !doorSelect || !subSelect) return;
     const door = doorSelect.value;
-    let first = '';
-    Array.from(subSelect.options).forEach((option) => {
-      const show = option.dataset.door === door;
-      option.hidden = !show;
-      option.disabled = !show;
-      if (show && !first) first = option.value;
+    const current = subSelect.value;
+    subSelect.replaceChildren();
+    subOptions.forEach((option) => {
+      if (option.dataset.door === door) subSelect.append(option.cloneNode(true));
     });
-    if (subSelect.selectedOptions[0]?.disabled && first) subSelect.value = first;
+    const match = [...subSelect.options].some((option) => option.value === current);
+    if (match) subSelect.value = current;
     const kind = selectedListing();
     form.querySelectorAll<HTMLElement>('[data-for]').forEach((node) => {
       const show = node.dataset.for === kind;
@@ -144,22 +210,52 @@ import { districtLabels } from '../lib/labels';
       });
     });
     form.querySelectorAll<HTMLElement>('[data-label-event]').forEach((node) => {
-      const next = kind === 'venue' ? node.dataset.labelVenue : node.dataset.labelEvent;
-      if (next) node.textContent = next;
+      const label = kind === 'venue' ? node.dataset.labelVenue : node.dataset.labelEvent;
+      if (label) node.textContent = label;
     });
     const title = form.querySelector<HTMLInputElement>('input[name="title"]');
     if (title) title.placeholder = kind === 'venue' ? 'Πολιτιστικό Κέντρο Όμοδος' : 'Πανηγύρι στο Όμοδος';
     const description = form.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
-    if (description) {
-      description.placeholder = kind === 'venue' ? 'Προαιρετικά. Τι γίνεται στον χώρο.' : 'Προαιρετικά.';
-    }
+    if (description) description.placeholder = kind === 'venue' ? 'Προαιρετικά. Τι γίνεται στον χώρο.' : 'Προαιρετικά.';
     const location = form.querySelector<HTMLInputElement>('input[name="locationName"]');
     if (location) location.placeholder = kind === 'venue' ? 'Όμοδος' : 'Κάστρο Πάφου';
+    paint();
   };
 
   doorSelect?.addEventListener('change', applyListing);
   subSelect?.addEventListener('change', applyListing);
   applyListing();
+
+  prev?.addEventListener('click', () => {
+    step = Math.max(0, step - 1);
+    paint();
+  });
+
+  next?.addEventListener('click', () => {
+    const panel = panels()[step];
+    if (panel && !panelIsValid(panel)) return;
+    step += 1;
+    paint();
+  });
+
+  form?.querySelectorAll<HTMLButtonElement>('[data-step-jump]').forEach((jump) => {
+    jump.addEventListener('click', () => {
+      const list = panels();
+      const target = list.findIndex((panel) => panel.dataset.stepId === jump.dataset.stepJump);
+      if (target < 0) return;
+      const current = panels()[step];
+      if (target > step && current && !panelIsValid(current)) return;
+      step = target;
+      paint();
+    });
+  });
+
+  form?.querySelector<HTMLInputElement>('.file-input')?.addEventListener('change', (event) => {
+    const input = event.currentTarget;
+    const name = form.querySelector('.file-name');
+    if (!(input instanceof HTMLInputElement) || !name) return;
+    name.textContent = input.files?.[0]?.name || 'JPG, PNG ή WebP';
+  });
 
   const showError = (message: string) => {
     if (!errorBox) return;
@@ -170,7 +266,7 @@ import { districtLabels } from '../lib/labels';
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!form || !button) return;
-    if (!form.reportValidity()) return;
+    if (!revealInvalid()) return;
     showError('');
     button.disabled = true;
     const original = button.textContent;

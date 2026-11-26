@@ -202,7 +202,6 @@
 .ripple-ring {
   position: absolute;
   border-radius: 50%;
-  mix-blend-mode: difference;
   pointer-events: none;
 }
 
