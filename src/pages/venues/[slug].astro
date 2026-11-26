@@ -1,0 +1,243 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { categoryLabels, districtLabels } from '../../lib/labels';
+import { fetchVenueBySlug } from '../../lib/sanity';
+import { plainText, renderDescription } from '../../lib/text';
+import type { VenueRecord } from '../../lib/types';
+
+const slug = Astro.params.slug;
+let venue: VenueRecord | null = null;
+try {
+  venue = slug ? await fetchVenueBySlug(slug) : null;
+} catch (error) {
+  console.error(error);
+}
+if (!venue) Astro.response.status = 404;
+
+const summary = venue ? plainText(venue.description).replace(/\s+/g, ' ').slice(0, 180) : 'Ο χώρος δεν βρέθηκε.';
+const html = venue ? renderDescription(venue.description) : '';
+const fullImage = venue ? venue.imageUrl.replace(/\?.*$/, '') + (venue.imageUrl.includes('cdn.sanity.io') ? '?auto=format&q=85' : '') : '';
+const mapHref = venue?.googleMapsUrl || (venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.locationName}, ${venue.district}, Cyprus`)}` : '#');
+---
+
+<Layout title={venue ? venue.title : 'Ο χώρος δεν βρέθηκε'} description={summary || 'Χώρος με δραστηριότητες στην Κύπρο.'} bare>
+  <a href="/venues" class="event-back">
+    <span aria-hidden="true">←</span>
+    Χώροι
+  </a>
+  <article class="event-page">
+    <div class="event-frame">
+      {
+        venue ? (
+          <>
+            <p class="event-kicker">
+              {categoryLabels[venue.category]}
+              <span aria-hidden="true">·</span>
+              {districtLabels[venue.district]}
+            </p>
+            <h1>{venue.title}</h1>
+            {
+              venue.imageUrl && (
+                <button type="button" class="event-photo" data-photo aria-label="Μεγέθυνση φωτογραφίας">
+                  <img src={venue.imageUrl} alt={venue.imageAlt} width="1400" height="900" />
+                </button>
+              )
+            }
+            <dialog class="event-lightbox" data-lightbox>
+              <button type="button" class="event-lightbox-close" data-close>Κλείσιμο</button>
+              <img src={fullImage} alt="" />
+            </dialog>
+            <dl>
+              <div>
+                <dt>Πού</dt>
+                <dd>{venue.locationName}</dd>
+              </div>
+              <div>
+                <dt>Δραστηριότητες</dt>
+                <dd>{categoryLabels[venue.category]}</dd>
+              </div>
+            </dl>
+            {html && <div class="event-copy" set:html={html} />}
+            <div class="event-actions">
+              <a href={mapHref} target="_blank" rel="noopener noreferrer">Χάρτης</a>
+              {venue.websiteUrl && (
+                <a class="is-solid" href={venue.websiteUrl} target="_blank" rel="noopener noreferrer">
+                  Ιστότοπος
+                </a>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <h1>Δεν βρέθηκε</h1>
+            <p class="event-missing">Ο χώρος μπορεί να μην έχει δημοσιευτεί ακόμα.</p>
+            <div class="event-actions">
+              <a class="is-solid" href="/venues">Πίσω στους χώρους</a>
+            </div>
+          </>
+        )
+      }
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .event-back {
+    position: fixed;
+    z-index: 30;
+    top: 18px;
+    left: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #e7e0d1;
+    color: #111;
+    padding: 0.45rem 0.85rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .event-page {
+    min-height: 100dvh;
+    background: #e7e0d1;
+    color: #16120c;
+    padding: 92px 20px 72px;
+  }
+  .event-frame {
+    max-width: 860px;
+    margin: 0 auto;
+    border: 1px solid #111;
+    border-radius: 36px;
+    padding: 42px 40px 32px;
+  }
+  .event-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    color: #6f6d6a;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .event-frame h1 {
+    margin: 14px 0 0;
+    font-family: Archivo, Inter, sans-serif;
+    font-size: clamp(40px, 7vw, 76px);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .event-photo {
+    display: block;
+    width: 100%;
+    margin: 28px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .event-frame img {
+    display: block;
+    width: 100%;
+    max-height: 640px;
+    border: 1px solid #111;
+    border-radius: 22px;
+    object-fit: contain;
+    background: #f4efe6;
+  }
+  .event-lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 64px 24px 24px;
+    border: 0;
+    background: rgba(22, 18, 12, 0.94);
+  }
+  .event-lightbox img {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border: 0;
+    object-fit: contain;
+    background: transparent;
+  }
+  .event-lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    border: 1px solid #f3ede1;
+    border-radius: 999px;
+    background: transparent;
+    color: #f3ede1;
+    padding: 0.45rem 0.85rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .event-frame dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin: 28px 0 0;
+  }
+  .event-frame dt {
+    color: #6f6d6a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .event-frame dd {
+    margin: 6px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .event-copy { margin-top: 28px; max-width: 40rem; }
+  .event-copy :global(p) { margin: 0.9rem 0 0; color: #3c3832; font-size: 16px; line-height: 1.6; }
+  .event-missing { margin: 16px 0 0; color: #3c3832; }
+  .event-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+  .event-actions a {
+    display: inline-flex;
+    border: 1px solid #111;
+    border-radius: 999px;
+    padding: 0.75rem 1rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #16120c;
+  }
+  .event-actions a.is-solid { background: #16120c; color: #f3ede1; }
+  @media (max-width: 720px) {
+    .event-page { padding: 104px 12px 96px; }
+    .event-frame { border-radius: 22px; padding: 28px 18px 22px; }
+    .event-frame dl { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const opener = document.querySelector('[data-photo]');
+  const dialog = document.querySelector('[data-lightbox]');
+  if (opener instanceof HTMLButtonElement && dialog instanceof HTMLDialogElement) {
+    opener.addEventListener('click', () => dialog.showModal());
+    dialog.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target === dialog || (target instanceof Element && target.closest('[data-close]'))) dialog.close();
+    });
+  }
+</script>

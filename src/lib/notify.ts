@@ -55,3 +55,36 @@ export async function notifyNewSubmission(input: SubmitPayload, id: string, orig
 
   if (!response.ok) console.error(await response.text());
 }
+
+export async function notifyNewVenue(
+  input: { title: string; category: SubmitPayload['category']; district: SubmitPayload['district']; locationName: string; organizerContact: string },
+  id: string,
+  origin: string,
+): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return;
+  const to = process.env.MODERATION_EMAIL || 'stelios0102@gmail.com';
+  const studio = `${origin}/studio/intent/edit/id=drafts.${id};type=venue`;
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: process.env.RESEND_FROM || 'Volta <onboarding@resend.dev>',
+      to: [to],
+      subject: `Νέος χώρος: ${input.title}`,
+      html: `<div style="font-family:Inter,Arial,sans-serif;color:#16120c">
+        <p>Κάποιος έστειλε έναν χώρο με δραστηριότητες. Άνοιξε το Studio και πάτα Publish για να φανεί στη σελίδα.</p>
+        <p><strong>Χώρος</strong><br />${escape(input.title)}</p>
+        <p><strong>Δραστηριότητες</strong><br />${escape(categoryLabels[input.category])}</p>
+        <p><strong>Επαρχία</strong><br />${escape(districtLabels[input.district])}</p>
+        <p><strong>Τοποθεσία</strong><br />${escape(input.locationName)}</p>
+        <p><strong>Επικοινωνία</strong><br />${escape(input.organizerContact)}</p>
+        <p><a href="${studio}">Άνοιγμα στο Studio</a></p>
+      </div>`,
+    }),
+  });
+  if (!response.ok) console.error(await response.text());
+}

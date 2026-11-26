@@ -1,7 +1,7 @@
 import { createClient, type SanityClient } from '@sanity/client';
 import { isCategory, isDistrict, isStatus } from '../../shared/taxonomy';
 import { env } from './env';
-import type { EventRecord, PortableBlock } from './types';
+import type { EventRecord, PortableBlock, VenueRecord } from './types';
 
 const EVENT_FIELDS = `{
   _id,
@@ -188,6 +188,107 @@ export async function createPendingEvent(input: NewEventInput): Promise<string> 
     organizerContact: input.organizerContact,
     mainImage: input.mainImage,
     isFeatured: false,
+    status: 'published',
+  });
+  return id;
+}
+
+const VENUE_FIELDS = `{
+  _id,
+  title,
+  "slug": slug.current,
+  description,
+  district,
+  locationName,
+  googleMapsUrl,
+  websiteUrl,
+  category,
+  "imageUrl": mainImage.asset->url,
+  "imageAlt": coalesce(mainImage.alt, title),
+  status
+}`;
+
+const VENUE_LIST_QUERY = `*[_type == "venue" && status == "published"] | order(title asc) ${VENUE_FIELDS}`;
+const VENUE_SLUG_QUERY = `*[_type == "venue" && slug.current == $slug && status == "published"][0] ${VENUE_FIELDS}`;
+
+interface SanityVenue {
+  _id: string;
+  title?: string;
+  slug?: string;
+  description?: PortableBlock[];
+  district?: string;
+  locationName?: string;
+  googleMapsUrl?: string;
+  websiteUrl?: string;
+  category?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  status?: string;
+}
+
+export interface NewVenueInput {
+  title: string;
+  slug: string;
+  description: PortableBlock[];
+  district: VenueRecord['district'];
+  locationName: string;
+  googleMapsUrl?: string;
+  websiteUrl?: string;
+  category: VenueRecord['category'];
+  organizerContact: string;
+  mainImage?: NewEventInput['mainImage'];
+}
+
+function normalizeVenue(doc: SanityVenue | null): VenueRecord | null {
+  if (!doc?.title || !doc.slug || !doc.district || !doc.category || !doc.status) return null;
+  if (!isDistrict(doc.district) || !isCategory(doc.category) || !isStatus(doc.status)) return null;
+  return {
+    id: doc._id,
+    title: doc.title,
+    slug: doc.slug,
+    description: doc.description?.length ? doc.description : '',
+    district: doc.district,
+    locationName: doc.locationName || doc.district,
+    googleMapsUrl: doc.googleMapsUrl,
+    websiteUrl: doc.websiteUrl,
+    category: doc.category,
+    imageUrl: imageUrl(doc.imageUrl),
+    imageAlt: doc.imageAlt || doc.title,
+    status: doc.status,
+  };
+}
+
+export async function fetchPublishedVenues(): Promise<VenueRecord[]> {
+  const client = readClient();
+  if (!client) return [];
+  const docs = await client.fetch<SanityVenue[]>(VENUE_LIST_QUERY);
+  return docs.map((doc) => normalizeVenue(doc)).filter((venue): venue is VenueRecord => Boolean(venue));
+}
+
+export async function fetchVenueBySlug(slug: string): Promise<VenueRecord | null> {
+  const client = readClient();
+  if (!client) return null;
+  const doc = await client.fetch<SanityVenue | null>(VENUE_SLUG_QUERY, { slug });
+  return normalizeVenue(doc);
+}
+
+export async function createPendingVenue(input: NewVenueInput): Promise<string> {
+  const client = writeClient();
+  if (!client) throw new Error('Sanity is not configured');
+  const id = `venue-${crypto.randomUUID()}`;
+  await client.create({
+    _id: `drafts.${id}`,
+    _type: 'venue',
+    title: input.title,
+    slug: { _type: 'slug', current: input.slug },
+    description: input.description,
+    district: input.district,
+    locationName: input.locationName,
+    googleMapsUrl: input.googleMapsUrl,
+    websiteUrl: input.websiteUrl,
+    category: input.category,
+    organizerContact: input.organizerContact,
+    mainImage: input.mainImage,
     status: 'published',
   });
   return id;

@@ -44,6 +44,7 @@ const showForm = !status || status === 'cancelled';
       <p class="submit-kicker">Καταχώρηση</p>
       <h1>Νέα εκδήλωση</h1>
       <p class="submit-lead">Δωρεάν καταχώρηση. Έλεγχος μέσα σε 48 ώρες και δημοσίευση μετά την έγκριση.</p>
+      <p class="submit-lead"><a href="/venues/submit">Έχεις χώρο με δραστηριότητες; Καταχώρησέ τον.</a></p>
 
       {
         status === 'free' && (
@@ -150,6 +151,10 @@ const showForm = !status || status === 'cancelled';
     letter-spacing: -0.045em;
     line-height: 0.88;
     text-transform: uppercase;
+  }
+
+  .submit-lead a {
+    color: inherit;
   }
 
   .submit-lead,

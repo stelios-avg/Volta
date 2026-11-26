@@ -19,6 +19,21 @@ export interface PortableBlock {
 
 export type EventDescription = string | PortableBlock[];
 
+export interface VenueRecord {
+  id: string;
+  title: string;
+  slug: string;
+  description: EventDescription;
+  district: District;
+  locationName: string;
+  googleMapsUrl?: string;
+  websiteUrl?: string;
+  category: Category;
+  imageUrl: string;
+  imageAlt: string;
+  status: EventStatus;
+}
+
 export interface EventRecord {
   id: string;
   title: string;

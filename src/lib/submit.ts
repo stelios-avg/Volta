@@ -107,3 +107,50 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
     },
   };
 }
+
+export interface VenuePayload {
+  title: string;
+  description: string;
+  district: District;
+  locationName: string;
+  googleMapsUrl?: string;
+  websiteUrl?: string;
+  category: Category;
+  organizerContact: string;
+}
+
+export function parseVenueForm(form: FormData): { data?: VenuePayload; errors: string[] } {
+  const errors: string[] = [];
+  const title = field(form, 'title');
+  if (title.length < 2 || title.length > 140) errors.push('Το όνομα του χώρου χρειάζεται 2 έως 140 χαρακτήρες.');
+
+  const description = field(form, 'description');
+  if (description.length > 4000) errors.push('Η περιγραφή μπορεί να έχει έως 4000 χαρακτήρες.');
+
+  const district = field(form, 'district');
+  if (!isDistrict(district)) errors.push('Διάλεξε επαρχία.');
+
+  const category = field(form, 'category');
+  if (!isCategory(category)) errors.push('Διάλεξε τι δραστηριότητες έχει ο χώρος.');
+
+  const locationName = field(form, 'locationName');
+  if (locationName.length < 2 || locationName.length > 160) errors.push('Συμπλήρωσε τη διεύθυνση ή την περιοχή.');
+
+  const mapsRaw = field(form, 'googleMapsUrl');
+  const googleMapsUrl = mapsRaw ? httpUrl(mapsRaw) : undefined;
+  if (mapsRaw && !googleMapsUrl) errors.push('Ο σύνδεσμος χάρτη πρέπει να ξεκινά με http ή https.');
+
+  const siteRaw = field(form, 'websiteUrl');
+  const websiteUrl = siteRaw ? httpUrl(siteRaw) : undefined;
+  if (siteRaw && !websiteUrl) errors.push('Ο ιστότοπος πρέπει να ξεκινά με http ή https.');
+
+  const organizerContact = field(form, 'organizerContact');
+  if (!isContact(organizerContact)) errors.push('Συμπλήρωσε email ή τηλέφωνο επικοινωνίας.');
+
+  if (errors.length || !isDistrict(district) || !isCategory(category)) return { errors };
+
+  return {
+    errors: [],
+    data: { title, description, district, locationName, googleMapsUrl, websiteUrl, category, organizerContact },
+  };
+}

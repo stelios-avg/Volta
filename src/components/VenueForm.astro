@@ -1,0 +1,106 @@
+---
+import { CATEGORIES, DISTRICTS } from '../../shared/taxonomy';
+import { categoryLabels, districtLabels } from '../lib/labels';
+---
+
+<form id="venue-form" class="submit-form">
+  <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+    <label>
+      Company
+      <input name="company" tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Όνομα χώρου</span>
+    <input name="title" required minlength="2" maxlength="140" placeholder="Πολιτιστικό Κέντρο Όμοδος" />
+  </label>
+
+  <label class="field">
+    <span>Δραστηριότητες</span>
+    <textarea name="description" maxlength="4000" placeholder="Προαιρετικά. Τι γίνεται στον χώρο."></textarea>
+  </label>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <label class="field">
+      <span>Επαρχία</span>
+      <select name="district" required>
+        <option value="">Επίλεξε επαρχία</option>
+        {DISTRICTS.map((district) => <option value={district}>{districtLabels[district]}</option>)}
+      </select>
+    </label>
+    <label class="field">
+      <span>Είδος</span>
+      <select name="category" required>
+        <option value="">Τι φιλοξενεί</option>
+        {CATEGORIES.map((category) => <option value={category}>{categoryLabels[category]}</option>)}
+      </select>
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Διεύθυνση ή περιοχή</span>
+    <input name="locationName" required minlength="2" maxlength="160" placeholder="Όμοδος" />
+  </label>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <label class="field">
+      <span>Σύνδεσμος Google Maps</span>
+      <input name="googleMapsUrl" type="url" inputmode="url" placeholder="https://" />
+    </label>
+    <label class="field">
+      <span>Ιστότοπος</span>
+      <input name="websiteUrl" type="url" inputmode="url" placeholder="https://" />
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Φωτογραφία (JPG, PNG ή WebP, έως 4MB)</span>
+    <input name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+  </label>
+
+  <label class="field">
+    <span>Email ή τηλέφωνο επικοινωνίας</span>
+    <input name="organizerContact" required autocomplete="email" placeholder="name@example.com" />
+  </label>
+
+  <p class="submit-error" hidden></p>
+  <button class="submit-send" type="submit">Καταχώρηση χώρου</button>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#venue-form');
+  const button = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const errorBox = form?.querySelector<HTMLParagraphElement>('.submit-error');
+  const showError = (message: string) => {
+    if (!errorBox) return;
+    errorBox.hidden = !message;
+    errorBox.textContent = message;
+  };
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form || !button) return;
+    if (!form.reportValidity()) return;
+    showError('');
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = 'Αποστολή…';
+    try {
+      const response = await fetch('/api/submit-venue', { method: 'POST', body: new FormData(form) });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        showError(Array.isArray(data.errors) ? data.errors.join(' ') : 'Η υποβολή δεν ολοκληρώθηκε.');
+        button.disabled = false;
+        button.textContent = original;
+        return;
+      }
+      const preview = data.preview ? '1' : '0';
+      window.location.href = `/venues/submit?status=sent&preview=${preview}`;
+    } catch {
+      showError('Κάτι πήγε στραβά στο δίκτυο. Δοκίμασε ξανά.');
+      button.disabled = false;
+      button.textContent = original;
+    }
+  });
+</script>

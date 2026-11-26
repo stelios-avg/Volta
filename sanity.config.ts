@@ -14,7 +14,13 @@ export default defineConfig({
   dataset,
   plugins: [
     structureTool({
-      structure: (S) => S.documentTypeList('event').title('Εκδηλώσεις'),
+      structure: (S) =>
+        S.list()
+          .title('Περιεχόμενο')
+          .items([
+            S.documentTypeListItem('event').title('Εκδηλώσεις'),
+            S.documentTypeListItem('venue').title('Χώροι'),
+          ]),
     }),
     visionTool(),
   ],
