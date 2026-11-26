@@ -190,7 +190,39 @@
   }
 }
 
-:where(a, button):active {
-  opacity: 0.72;
+html,
+:where(a, button, label, summary) {
+  cursor: url('/cursor.png') 16 16, auto;
+}
+
+:where(input:not([type='file']), textarea, select) {
+  cursor: text;
+}
+
+.logo-tap {
+  position: fixed;
+  z-index: 80;
+  width: 42px;
+  height: 42px;
+  margin: -21px 0 0 -21px;
+  pointer-events: none;
+  animation: logo-tap 680ms ease-out forwards;
+}
+
+@keyframes logo-tap {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-tap {
+    display: none;
+  }
 }
 

@@ -72,5 +72,21 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
     <a class="studio-credit" href="https://www.pixel-studio.design/" target="_blank" rel="noopener noreferrer">
       powered by Pixel-Studio
     </a>
+    <script>
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reducedMotion) {
+        window.addEventListener('pointerdown', (event) => {
+          if (event.button !== 0) return;
+          const mark = document.createElement('img');
+          mark.src = '/cursor-tap.png';
+          mark.alt = '';
+          mark.className = 'logo-tap';
+          mark.style.left = `${event.clientX}px`;
+          mark.style.top = `${event.clientY}px`;
+          document.body.appendChild(mark);
+          mark.addEventListener('animationend', () => mark.remove());
+        });
+      }
+    </script>
   </body>
 </html>
