@@ -195,6 +195,15 @@ html,
   cursor: url('/cursor.png') 16 16, auto;
 }
 
+.door-filters a:active,
+.submit-steps button:active,
+.submit-next:active,
+.submit-prev:active,
+.submit-send:active {
+  background: #16120c;
+  color: #f4efe6;
+}
+
 :where(input:not([type='file']), textarea, select) {
   cursor: text;
 }

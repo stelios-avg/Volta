@@ -413,10 +413,24 @@ export default function Overture({ skipIntro = false }: { skipIntro?: boolean })
 
     sync();
     const frame = requestAnimationFrame(sync);
+    const press = (event: PointerEvent) => {
+      const link = event.target instanceof Element ? event.target.closest<HTMLElement>('.ov-link') : null;
+      if (!link || !nav.contains(link)) return;
+      link.classList.add('is-pressed');
+    };
+    const release = () => {
+      nav.querySelectorAll('.ov-link.is-pressed').forEach((link) => link.classList.remove('is-pressed'));
+    };
+    nav.addEventListener('pointerdown', press);
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
     nav.addEventListener('scroll', paint, { passive: true });
     mobileQuery.addEventListener('change', sync);
     return () => {
       cancelAnimationFrame(frame);
+      nav.removeEventListener('pointerdown', press);
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointercancel', release);
       nav.removeEventListener('scroll', paint);
       mobileQuery.removeEventListener('change', sync);
     };
@@ -528,6 +542,18 @@ const CSS = `
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
+  border-radius: 999px;
+  padding: 8px 10px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.ov-link:active,
+.ov-link.is-pressed {
+  background: #16120c;
+  color: #f4efe6;
+}
+.ov-link:active .ov-rise,
+.ov-link.is-pressed .ov-rise {
+  color: #f4efe6;
 }
 .ov-ico {
   display: none;
@@ -768,6 +794,23 @@ const CSS = `
   .ov-link[data-depth="0"] .ov-ico {
     background: #16120c;
     color: #f4efe6;
+  }
+  .ov-link:active,
+  .ov-link.is-pressed,
+  .ov-link[data-depth="0"]:active,
+  .ov-link[data-depth="0"].is-pressed,
+  .ov-link[data-depth="1"]:active,
+  .ov-link[data-depth="1"].is-pressed,
+  .ov-link[data-depth="2"]:active,
+  .ov-link[data-depth="2"].is-pressed {
+    background: #16120c;
+    color: #f4efe6;
+    box-shadow: none;
+  }
+  .ov-link:active .ov-ico,
+  .ov-link.is-pressed .ov-ico {
+    background: #f4efe6;
+    color: #16120c;
   }
   .pl-img {
     width: 168px;
