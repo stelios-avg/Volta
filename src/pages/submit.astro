@@ -35,15 +35,22 @@ const showForm = !status || status === 'cancelled';
   bare
 >
   <div class="submit-page">
-    <a href="/?ready=1" class="submit-back">
-      <span aria-hidden="true">←</span>
-      Αρχική
-    </a>
+    <div class="submit-bar">
+      <a href="/?ready=1" class="submit-back">
+        <span aria-hidden="true">←</span>
+        Αρχική
+      </a>
+    </div>
 
     <section class="submit-frame">
-      <p class="submit-kicker">Καταχώρηση</p>
-      <h1>Νέα καταχώριση</h1>
-      <p class="submit-lead">Διάλεξε κατηγορία και υποκατηγορία. Η ημερομηνία ζητείται στις εκδηλώσεις. Στους χώρους μένει κενή. Έλεγχος μέσα σε 48 ώρες και δημοσίευση μετά την έγκριση.</p>
+      <a class="submit-brand" href="/?ready=1" aria-label="Volta">
+        <img src="/favicon.png" alt="" width="72" height="72" />
+        <span>Volta</span>
+      </a>
+      <div class="submit-head">
+        <h1>Νέα καταχώριση</h1>
+        <p class="submit-lead">Διάλεξε κατηγορία και υποκατηγορία. Η ημερομηνία ζητείται στις εκδηλώσεις. Στους χώρους μένει κενή. Έλεγχος μέσα σε 48 ώρες και δημοσίευση μετά την έγκριση.</p>
+      </div>
 
       {
         status === 'free' && (
@@ -102,21 +109,28 @@ const showForm = !status || status === 'cancelled';
     min-height: 100dvh;
     background: #e7e0d1;
     color: #16120c;
-    padding: 92px 20px 72px;
+    padding: 22px 20px 108px;
+  }
+
+  .submit-bar,
+  .submit-frame {
+    max-width: 760px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .submit-bar {
+    margin-bottom: 18px;
   }
 
   .submit-back {
-    position: fixed;
-    z-index: 30;
-    top: 18px;
-    left: 18px;
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    border: 1px solid #111;
+    border: 1px solid #16120c;
     border-radius: 999px;
-    background: #e7e0d1;
-    color: #111;
+    background: transparent;
+    color: #16120c;
     padding: 0.45rem 0.85rem;
     font-size: 12px;
     font-weight: 600;
@@ -126,41 +140,58 @@ const showForm = !status || status === 'cancelled';
   }
 
   .submit-frame {
-    max-width: 760px;
-    margin: 0 auto;
-    border: 1px solid #111;
+    border: 1px solid #16120c;
     border-radius: 36px;
-    padding: 42px 40px 36px;
+    background: #f4efe6;
+    padding: 36px 40px 32px;
+    box-shadow: 0 22px 50px rgba(22, 18, 12, 0.05);
   }
 
-  .submit-kicker {
-    margin: 0;
-    color: #6f6d6a;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
+  .submit-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin: 0 auto;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .submit-brand img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+  }
+
+  .submit-brand span {
+    font-family: Archivo, Inter, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+  }
+
+  .submit-head {
+    margin-top: 22px;
+    text-align: center;
   }
 
   .submit-frame h1 {
-    margin: 12px 0 0;
+    margin: 0;
     font-family: Archivo, Inter, sans-serif;
-    font-size: clamp(42px, 7vw, 72px);
+    font-size: clamp(40px, 6vw, 68px);
     font-weight: 900;
     letter-spacing: -0.045em;
-    line-height: 0.88;
+    line-height: 0.9;
     text-transform: uppercase;
-  }
-
-  .submit-lead a {
-    color: inherit;
   }
 
   .submit-lead,
   .submit-note,
   .submit-status p {
-    max-width: 36rem;
-    margin: 14px 0 0;
+    max-width: 34rem;
+    margin: 14px auto 0;
     color: #3c3832;
     font-size: 15px;
     line-height: 1.55;
@@ -168,55 +199,101 @@ const showForm = !status || status === 'cancelled';
 
   .submit-form {
     display: grid;
-    gap: 1.15rem;
-    margin-top: 2rem;
+    gap: 1.6rem;
+    margin-top: 2.1rem;
+  }
+
+  .submit-block {
+    display: grid;
+    gap: 0.95rem;
+    margin: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .submit-block legend {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.15rem;
+    padding: 0 0 0.55rem;
+    border-bottom: 1px solid rgba(22, 18, 12, 0.14);
+    color: #6f6d6a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .submit-grid {
+    display: grid;
+    gap: 0.95rem;
+  }
+
+  .submit-page .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 
   .submit-page .field span {
     color: #16120c;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
-  .submit-page .field small {
+  .submit-page .field small,
+  .submit-note {
     color: #6f6d6a;
+    font-size: 13px;
   }
 
   .submit-page .field input,
   .submit-page .field select,
   .submit-page .field textarea {
-    border: 0;
-    border-bottom: 1px solid #16120c;
-    border-radius: 0;
-    background: transparent;
-    padding: 0.65rem 0;
+    width: 100%;
+    border: 1px solid rgba(22, 18, 12, 0.18);
+    border-radius: 14px;
+    background: #fbf7f0;
+    padding: 0.8rem 0.9rem;
     color: #16120c;
+    font-size: 16px;
   }
 
   .submit-page .field textarea {
     min-height: 7.5rem;
-    border: 1px solid #16120c;
     border-radius: 18px;
-    padding: 0.85rem 0.95rem;
+    resize: vertical;
+  }
+
+  .submit-page .field select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #16120c 50%), linear-gradient(135deg, #16120c 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 2.1rem;
   }
 
   .submit-page .field input:focus,
   .submit-page .field select:focus,
   .submit-page .field textarea:focus {
     outline: none;
-    border-color: #111;
+    border-color: #16120c;
+    background-color: #fffdf8;
   }
 
   .submit-note {
-    margin-top: 0.4rem;
+    margin-top: 0;
+    text-align: center;
   }
 
   .submit-error {
     margin: 0;
     color: #9a3412;
     font-size: 14px;
+    text-align: center;
   }
 
   .submit-send,
@@ -224,11 +301,13 @@ const showForm = !status || status === 'cancelled';
     display: inline-flex;
     width: fit-content;
     align-items: center;
-    border: 1px solid #111;
+    justify-content: center;
+    justify-self: center;
+    border: 1px solid #16120c;
     border-radius: 999px;
     background: #16120c;
     color: #f3ede1;
-    padding: 0.8rem 1.15rem;
+    padding: 0.9rem 1.4rem;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -238,6 +317,7 @@ const showForm = !status || status === 'cancelled';
 
   .submit-status {
     margin-top: 1.75rem;
+    text-align: center;
   }
 
   .submit-status h2 {
@@ -251,18 +331,33 @@ const showForm = !status || status === 'cancelled';
     margin-top: 1.25rem;
   }
 
+  @media (min-width: 721px) {
+    .submit-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
   @media (max-width: 720px) {
     .submit-page {
-      padding: 104px 12px 48px;
+      padding: 16px 12px 96px;
     }
 
     .submit-frame {
-      border-radius: 22px;
-      padding: 28px 18px 24px;
+      border-radius: 24px;
+      padding: 28px 16px 22px;
+    }
+
+    .submit-brand img {
+      width: 52px;
+      height: 52px;
     }
 
     .submit-frame h1 {
-      font-size: clamp(28px, 8.6vw, 40px);
+      font-size: clamp(32px, 9vw, 42px);
+    }
+
+    .submit-send {
+      width: 100%;
     }
   }
 </style>
