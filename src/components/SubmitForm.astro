@@ -18,7 +18,7 @@ import { districtLabels } from '../lib/labels';
 
   <label class="field">
     <span>Περιγραφή</span>
-    <textarea name="description" maxlength="4000" placeholder="Προαιρετικά. Ακόμα και μία λέξη."></textarea>
+    <textarea name="description" maxlength="4000" placeholder="Προαιρετικά."></textarea>
   </label>
 
   <div class="grid gap-4 sm:grid-cols-2" data-for="event">
@@ -142,7 +142,7 @@ import { districtLabels } from '../lib/labels';
     if (title) title.placeholder = kind === 'venue' ? 'Πολιτιστικό Κέντρο Όμοδος' : 'Πανηγύρι στο Όμοδος';
     const description = form.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
     if (description) {
-      description.placeholder = kind === 'venue' ? 'Προαιρετικά. Τι γίνεται στον χώρο.' : 'Προαιρετικά. Ακόμα και μία λέξη.';
+      description.placeholder = kind === 'venue' ? 'Προαιρετικά. Τι γίνεται στον χώρο.' : 'Προαιρετικά.';
     }
     const location = form.querySelector<HTMLInputElement>('input[name="locationName"]');
     if (location) location.placeholder = kind === 'venue' ? 'Όμοδος' : 'Κάστρο Πάφου';
