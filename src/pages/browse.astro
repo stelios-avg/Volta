@@ -1,16 +1,19 @@
 ---
 export const prerender = false;
 
+import DoorFilters from '../components/DoorFilters.astro';
 import EventReel from '../components/EventReel.astro';
 import Layout from '../layouts/Layout.astro';
 import { getPublishedEvents } from '../lib/events';
 import { filtersFromURL, matchesEvent } from '../lib/filters';
 import { districtLabels } from '../lib/labels';
+import { listingKind } from '../../shared/taxonomy';
 
 const filters = filtersFromURL(Astro.url);
+const sub = filters.subcategory && listingKind('events', filters.subcategory) ? filters.subcategory : null;
 const feed = await getPublishedEvents();
 const slides = feed.events
-  .filter((event) => matchesEvent(event, filters))
+  .filter((event) => matchesEvent(event, { ...filters, category: sub ? 'events' : null, subcategory: sub }))
   .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
   .map((event) => ({
     name: event.title,
@@ -24,5 +27,6 @@ const description = 'Οι προσεχείς εκδηλώσεις στην Κύ�
 ---
 
 <Layout title="Εκδηλώσεις" description={description} bare locked>
-  <EventReel slides={slides} showBack />
+  <DoorFilters door="events" sub={sub} district={filters.district} scope="all-events" />
+  <EventReel slides={slides} showBack emptyText="Δεν υπάρχουν εκδηλώσεις σε αυτό το φίλτρο." emptyHref="/browse" emptyLabel="Όλες οι εκδηλώσεις" />
 </Layout>

@@ -15,12 +15,12 @@ const PHOTOS = [
 
 const NAV = [
   { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', wide: true },
-  { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', wide: true },
-  { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', wide: true },
-  { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', wide: true },
-  { label: 'Γεύσεις', href: '/categories?category=Food%20%26%20Wine', glyph: 'glass', wide: false },
-  { label: 'Πολιτισμός', href: '/categories?category=Culture%20%26%20Theatre', glyph: 'columns', wide: false },
-  { label: 'Ύπαιθρος', href: '/categories?category=Outdoors%20%26%20Nature', glyph: 'tree', wide: false },
+  { label: 'Πανηγύρια', href: '/categories?category=panigyria', glyph: 'sun', wide: true },
+  { label: 'Μουσική', href: '/categories?category=music', glyph: 'music', wide: true },
+  { label: 'Οικογένεια', href: '/categories?category=family', glyph: 'people', wide: true },
+  { label: 'Γεύσεις', href: '/categories?category=food', glyph: 'glass', wide: false },
+  { label: 'Πολιτισμός', href: '/categories?category=culture', glyph: 'columns', wide: false },
+  { label: 'Εξορμήσεις', href: '/categories?category=outings', glyph: 'tree', wide: false },
   { label: 'Καταχώρηση', href: '/submit', glyph: 'plus', wide: true },
 ];
 const NAV_FOCUS = NAV.findIndex((item) => item.glyph === 'music');

@@ -8,7 +8,8 @@ function cardEvent(card: HTMLElement): FilterableEvent {
     startDate: card.dataset.start || '',
     endDate: card.dataset.end || undefined,
     district: (card.dataset.district || 'Nicosia') as District,
-    category: (card.dataset.category || 'Culture & Theatre') as Category,
+    category: (card.dataset.category || 'culture') as Category,
+    subcategory: card.dataset.subcategory || '',
     searchText: card.dataset.search || '',
   };
 }

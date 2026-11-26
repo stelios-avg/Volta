@@ -1,4 +1,4 @@
-import { isCategory, isDistrict, type Category, type District } from '../../shared/taxonomy';
+import { isCategory, isDistrict, isSubcategory, subcategoryById, type Category, type District } from '../../shared/taxonomy';
 import { addDays, compareCalendar, cyprusDate, daysInMonth, weekdayIndex, type CalendarDate } from './dates';
 import { searchText } from './labels';
 import type { FilterableEvent } from './types';
@@ -9,6 +9,7 @@ export interface EventFilters {
   timeframe: Timeframe | null;
   district: District | 'all';
   category: Category | null;
+  subcategory: string | null;
   q: string;
 }
 
@@ -27,11 +28,17 @@ export function parseCategoryParam(value: string | null | undefined): Category |
   return isCategory(value) ? value : null;
 }
 
+export function parseSubcategoryParam(value: string | null | undefined): string | null {
+  if (!value || value === 'all') return null;
+  return isSubcategory(value) ? value : null;
+}
+
 export function filtersFromURL(url: URL): EventFilters {
   return {
     timeframe: parseTimeframe(url.searchParams.get('when')),
     district: parseDistrictParam(url.searchParams.get('district')),
     category: parseCategoryParam(url.searchParams.get('category')),
+    subcategory: parseSubcategoryParam(url.searchParams.get('sub')),
     q: url.searchParams.get('q')?.trim() ?? '',
   };
 }
@@ -41,6 +48,7 @@ export function filtersToQuery(filters: EventFilters): string {
   if (filters.timeframe) params.set('when', filters.timeframe);
   if (filters.district !== 'all') params.set('district', filters.district);
   if (filters.category) params.set('category', filters.category);
+  if (filters.subcategory) params.set('sub', filters.subcategory);
   if (filters.q.trim()) params.set('q', filters.q.trim());
   const query = params.toString();
   return query ? `/browse?${query}` : '/browse';
@@ -111,8 +119,24 @@ export function matchesEvent(event: FilterableEvent, filters: EventFilters, now 
   }
   if (filters.district !== 'all' && event.district !== filters.district) return false;
   if (filters.category && event.category !== filters.category) return false;
+  if (filters.subcategory) {
+    const sub = subcategoryById(filters.subcategory);
+    if (!sub || event.category !== sub.door || event.subcategory !== sub.id) return false;
+  }
   const query = filters.q.trim();
   if (query && !matchesQuery(event.searchText || searchText(event), query)) return false;
+  return true;
+}
+
+export function matchesDoor(
+  item: { category: Category; subcategory?: string; district: District },
+  door: Category,
+  subcategory: string | null,
+  district: District | 'all',
+): boolean {
+  if (item.category !== door) return false;
+  if (district !== 'all' && item.district !== district) return false;
+  if (subcategory && item.subcategory !== subcategory) return false;
   return true;
 }
 

@@ -4,7 +4,8 @@ export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import { isUpcoming } from '../../lib/filters';
 import { extractPriceAmount, formatWhen } from '../../lib/format';
-import { categoryLabels, districtLabels } from '../../lib/labels';
+import { categoryLabels, districtLabels, subcategoryLabel } from '../../lib/labels';
+import { doorHref } from '../../../shared/taxonomy';
 import { getEventBySlug } from '../../lib/events';
 import { googleCalendarUrl, mapsUrl, whatsappUrl } from '../../lib/share';
 import { plainText, renderDescription } from '../../lib/text';
@@ -57,6 +58,9 @@ const jsonLd = event
 if (event) {
   Astro.response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
 }
+const backHref = event ? doorHref(event.category) : '/browse';
+const backLabel = event ? categoryLabels[event.category] : 'Εκδηλώσεις';
+const subLabel = event?.subcategory ? subcategoryLabel(event.subcategory) : '';
 ---
 
 <Layout
@@ -68,9 +72,9 @@ if (event) {
   jsonLd={jsonLd}
   bare
 >
-  <a href="/browse" class="event-back">
+  <a href={backHref} class="event-back">
     <span aria-hidden="true">←</span>
-    Εκδηλώσεις
+    {backLabel}
   </a>
   {
     event ? (
@@ -78,6 +82,12 @@ if (event) {
         <div class="event-frame">
           <p class="event-kicker">
             {categoryLabels[event.category]}
+            {subLabel && (
+              <>
+                <span aria-hidden="true">·</span>
+                {subLabel}
+              </>
+            )}
             <span aria-hidden="true">·</span>
             {districtLabels[event.district]}
             {event.isFeatured && <span>Προτεινόμενο</span>}

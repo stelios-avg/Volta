@@ -29,6 +29,7 @@ export interface VenueRecord {
   googleMapsUrl?: string;
   websiteUrl?: string;
   category: Category;
+  subcategory: string;
   imageUrl: string;
   imageAlt: string;
   status: EventStatus;
@@ -45,6 +46,7 @@ export interface EventRecord {
   locationName: string;
   googleMapsUrl?: string;
   category: Category;
+  subcategory: string;
   priceText: string;
   ticketUrl?: string;
   imageUrl: string;
@@ -59,6 +61,7 @@ export interface FilterableEvent {
   endDate?: string;
   district: District;
   category: Category;
+  subcategory?: string;
   title?: string;
   locationName?: string;
   searchText?: string;

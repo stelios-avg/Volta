@@ -1,0 +1,84 @@
+---
+import { doorHref, subsFor, type Category, type District } from '../../shared/taxonomy';
+import { districtLabels, districtPills } from '../lib/labels';
+
+interface Props {
+  door: Category;
+  sub: string | null;
+  district: District | 'all';
+  scope?: 'door' | 'all-events';
+}
+
+const { door, sub, district, scope = 'door' } = Astro.props;
+const subs = subsFor(door);
+const chip = (nextSub: string | null, nextDistrict: District | 'all') =>
+  scope === 'all-events' ? doorHref('events', nextSub, nextDistrict) : doorHref(door, nextSub, nextDistrict);
+---
+
+<nav class="door-filters" aria-label="Φίλτρα">
+  <div class="door-filters-row" role="group" aria-label="Υποκατηγορία">
+    <a href={chip(null, district)} aria-current={!sub ? 'true' : undefined}>Όλα</a>
+    {
+      subs.map((item) => (
+        <a href={chip(item.id, district)} aria-current={sub === item.id ? 'true' : undefined}>
+          {item.label}
+        </a>
+      ))
+    }
+  </div>
+  <div class="door-filters-row" role="group" aria-label="Επαρχία">
+    {
+      districtPills.map((pill) => (
+        <a href={chip(sub, pill.id)} aria-current={district === pill.id ? 'true' : undefined}>
+          {pill.id === 'all' ? 'Όλη η Κύπρος' : districtLabels[pill.id]}
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<style is:global>
+  .door-filters {
+    position: fixed;
+    z-index: 25;
+    top: 58px;
+    left: 12px;
+    right: 12px;
+    display: grid;
+    gap: 6px;
+    pointer-events: none;
+  }
+
+  .door-filters-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    pointer-events: auto;
+  }
+
+  .door-filters-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .door-filters a {
+    flex: none;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #e4e2df;
+    color: #16120c;
+    padding: 0.38rem 0.72rem;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .door-filters a[aria-current='true'] {
+    background: #16120c;
+    color: #f3ede1;
+  }
+</style>

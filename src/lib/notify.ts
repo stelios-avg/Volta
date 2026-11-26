@@ -1,4 +1,4 @@
-import { categoryLabels, districtLabels } from './labels';
+import { categoryLabels, districtLabels, subcategoryLabel } from './labels';
 import type { SubmitPayload } from './submit';
 
 function escape(value: string): string {
@@ -26,6 +26,7 @@ export async function notifyNewSubmission(input: SubmitPayload, id: string, orig
   const rows = [
     ['Τίτλος', input.title],
     ['Κατηγορία', categoryLabels[input.category]],
+    ['Υποκατηγορία', subcategoryLabel(input.subcategory)],
     ['Επαρχία', districtLabels[input.district]],
     ['Χώρος', input.locationName],
     ['Έναρξη', when],
@@ -57,7 +58,7 @@ export async function notifyNewSubmission(input: SubmitPayload, id: string, orig
 }
 
 export async function notifyNewVenue(
-  input: { title: string; category: SubmitPayload['category']; district: SubmitPayload['district']; locationName: string; organizerContact: string },
+  input: { title: string; category: SubmitPayload['category']; subcategory: string; district: SubmitPayload['district']; locationName: string; organizerContact: string },
   id: string,
   origin: string,
 ): Promise<void> {
@@ -78,7 +79,8 @@ export async function notifyNewVenue(
       html: `<div style="font-family:Inter,Arial,sans-serif;color:#16120c">
         <p>Κάποιος έστειλε έναν χώρο φιλοξενίας. Άνοιξε το Studio και πάτα Publish για να φανεί στην κατηγορία του.</p>
         <p><strong>Χώρος</strong><br />${escape(input.title)}</p>
-        <p><strong>Δραστηριότητες</strong><br />${escape(categoryLabels[input.category])}</p>
+        <p><strong>Κατηγορία</strong><br />${escape(categoryLabels[input.category])}</p>
+        <p><strong>Υποκατηγορία</strong><br />${escape(subcategoryLabel(input.subcategory))}</p>
         <p><strong>Επαρχία</strong><br />${escape(districtLabels[input.district])}</p>
         <p><strong>Τοποθεσία</strong><br />${escape(input.locationName)}</p>
         <p><strong>Επικοινωνία</strong><br />${escape(input.organizerContact)}</p>

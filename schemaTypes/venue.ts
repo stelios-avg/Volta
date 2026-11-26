@@ -1,8 +1,12 @@
 import { defineField, defineType } from 'sanity';
-import { CATEGORIES, DISTRICTS, STATUSES } from '../shared/taxonomy';
+import { DISTRICTS, DOORS, STATUSES, SUBCATEGORIES, listingKind } from '../shared/taxonomy';
 
 const districtOptions = DISTRICTS.map((district) => ({ title: district, value: district }));
-const categoryOptions = CATEGORIES.map((category) => ({ title: category, value: category }));
+const categoryOptions = DOORS.map((door) => ({ title: door.label, value: door.id }));
+const subcategoryOptions = SUBCATEGORIES.map((item) => {
+  const door = DOORS.find((entry) => entry.id === item.door);
+  return { title: `${door?.label ?? item.door} · ${item.label}`, value: item.id };
+});
 const statusOptions = STATUSES.map((status) => ({
   title: status.charAt(0).toUpperCase() + status.slice(1),
   value: status,
@@ -73,10 +77,23 @@ export const venueType = defineType({
     }),
     defineField({
       name: 'category',
-      title: 'Activities',
+      title: 'Category',
       type: 'string',
-      options: { list: categoryOptions, layout: 'radio' },
+      options: { list: categoryOptions },
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'subcategory',
+      title: 'Subcategory',
+      type: 'string',
+      options: { list: subcategoryOptions },
+      validation: (rule) =>
+        rule.custom((value, context) => {
+          const category = typeof context.document?.category === 'string' ? context.document.category : '';
+          if (!value) return true;
+          if (typeof value !== 'string') return 'Η υποκατηγορία δεν ταιριάζει με την κατηγορία.';
+          return listingKind(category, value) ? true : 'Η υποκατηγορία δεν ταιριάζει με την κατηγορία.';
+        }),
     }),
     defineField({
       name: 'organizerContact',

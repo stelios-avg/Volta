@@ -1,5 +1,5 @@
 import { createClient, type SanityClient } from '@sanity/client';
-import { isCategory, isDistrict, isStatus } from '../../shared/taxonomy';
+import { isDistrict, isStatus, resolveListing } from '../../shared/taxonomy';
 import { env } from './env';
 import type { EventRecord, PortableBlock, VenueRecord } from './types';
 
@@ -14,6 +14,7 @@ const EVENT_FIELDS = `{
   locationName,
   googleMapsUrl,
   category,
+  subcategory,
   priceText,
   ticketUrl,
   "imageUrl": mainImage.asset->url,
@@ -37,6 +38,7 @@ interface SanityEvent {
   locationName?: string;
   googleMapsUrl?: string;
   category?: string;
+  subcategory?: string;
   priceText?: string;
   ticketUrl?: string;
   imageUrl?: string;
@@ -56,6 +58,7 @@ export interface NewEventInput {
   locationName: string;
   googleMapsUrl?: string;
   category: EventRecord['category'];
+  subcategory: string;
   priceText: string;
   ticketUrl?: string;
   organizerContact: string;
@@ -117,7 +120,8 @@ function imageUrl(url?: string): string {
 
 export function normalizeEvent(doc: SanityEvent | null): EventRecord | null {
   if (!doc?.title || !doc.slug || !doc.startDate || !doc.district || !doc.category || !doc.status) return null;
-  if (!isDistrict(doc.district) || !isCategory(doc.category) || !isStatus(doc.status)) return null;
+  const listing = resolveListing(doc.category, doc.subcategory);
+  if (!listing || !isDistrict(doc.district) || !isStatus(doc.status)) return null;
   return {
     id: doc._id,
     title: doc.title,
@@ -128,7 +132,8 @@ export function normalizeEvent(doc: SanityEvent | null): EventRecord | null {
     district: doc.district,
     locationName: doc.locationName || doc.district,
     googleMapsUrl: doc.googleMapsUrl,
-    category: doc.category,
+    category: listing.category,
+    subcategory: listing.subcategory,
     priceText: doc.priceText || 'Δωρεάν',
     ticketUrl: doc.ticketUrl,
     imageUrl: imageUrl(doc.imageUrl),
@@ -183,6 +188,7 @@ export async function createPendingEvent(input: NewEventInput): Promise<string> 
     locationName: input.locationName,
     googleMapsUrl: input.googleMapsUrl,
     category: input.category,
+    subcategory: input.subcategory,
     priceText: input.priceText,
     ticketUrl: input.ticketUrl,
     organizerContact: input.organizerContact,
@@ -203,6 +209,7 @@ const VENUE_FIELDS = `{
   googleMapsUrl,
   websiteUrl,
   category,
+  subcategory,
   "imageUrl": mainImage.asset->url,
   "imageAlt": coalesce(mainImage.alt, title),
   status
@@ -221,6 +228,7 @@ interface SanityVenue {
   googleMapsUrl?: string;
   websiteUrl?: string;
   category?: string;
+  subcategory?: string;
   imageUrl?: string;
   imageAlt?: string;
   status?: string;
@@ -235,13 +243,15 @@ export interface NewVenueInput {
   googleMapsUrl?: string;
   websiteUrl?: string;
   category: VenueRecord['category'];
+  subcategory: string;
   organizerContact: string;
   mainImage?: NewEventInput['mainImage'];
 }
 
 function normalizeVenue(doc: SanityVenue | null): VenueRecord | null {
   if (!doc?.title || !doc.slug || !doc.district || !doc.category || !doc.status) return null;
-  if (!isDistrict(doc.district) || !isCategory(doc.category) || !isStatus(doc.status)) return null;
+  const listing = resolveListing(doc.category, doc.subcategory);
+  if (!listing || !isDistrict(doc.district) || !isStatus(doc.status)) return null;
   return {
     id: doc._id,
     title: doc.title,
@@ -251,7 +261,8 @@ function normalizeVenue(doc: SanityVenue | null): VenueRecord | null {
     locationName: doc.locationName || doc.district,
     googleMapsUrl: doc.googleMapsUrl,
     websiteUrl: doc.websiteUrl,
-    category: doc.category,
+    category: listing.category,
+    subcategory: listing.subcategory,
     imageUrl: imageUrl(doc.imageUrl),
     imageAlt: doc.imageAlt || doc.title,
     status: doc.status,
@@ -287,6 +298,7 @@ export async function createPendingVenue(input: NewVenueInput): Promise<string> 
     googleMapsUrl: input.googleMapsUrl,
     websiteUrl: input.websiteUrl,
     category: input.category,
+    subcategory: input.subcategory,
     organizerContact: input.organizerContact,
     mainImage: input.mainImage,
     status: 'published',

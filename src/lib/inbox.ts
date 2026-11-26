@@ -2,7 +2,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Category, District } from '../../shared/taxonomy';
-import { isCategory, isDistrict } from '../../shared/taxonomy';
+import { isDistrict, resolveListing } from '../../shared/taxonomy';
 import { categoryLabels, districtLabels } from './labels';
 import type { SubmitPayload } from './submit';
 import type { EventRecord } from './types';
@@ -20,6 +20,7 @@ type StoredSubmission = {
   locationName: string;
   googleMapsUrl?: string;
   category: Category;
+  subcategory: string;
   priceText: string;
   ticketUrl?: string;
   organizerContact: string;
@@ -105,7 +106,9 @@ async function supabaseRequest(pathname: string, init: RequestInit = {}): Promis
 function fromRow(row: Record<string, unknown> | null): StoredSubmission | null {
   if (!row || typeof row.title !== 'string' || typeof row.slug !== 'string') return null;
   if (typeof row.district !== 'string' || !isDistrict(row.district)) return null;
-  if (typeof row.category !== 'string' || !isCategory(row.category)) return null;
+  if (typeof row.category !== 'string') return null;
+  const listing = resolveListing(row.category, typeof row.subcategory === 'string' ? row.subcategory : '');
+  if (!listing) return null;
   const status = row.status;
   if (status !== 'pending' && status !== 'published' && status !== 'rejected') return null;
   return {
@@ -118,7 +121,8 @@ function fromRow(row: Record<string, unknown> | null): StoredSubmission | null {
     district: row.district,
     locationName: typeof row.location_name === 'string' ? row.location_name : String(row.locationName ?? ''),
     googleMapsUrl: typeof row.google_maps_url === 'string' ? row.google_maps_url : undefined,
-    category: row.category,
+    category: listing.category,
+    subcategory: listing.subcategory,
     priceText: typeof row.price_text === 'string' ? row.price_text : 'Δωρεάν',
     ticketUrl: typeof row.ticket_url === 'string' ? row.ticket_url : undefined,
     organizerContact: typeof row.organizer_contact === 'string' ? row.organizer_contact : '',
@@ -240,6 +244,7 @@ function toEvent(row: StoredSubmission): EventRecord {
     locationName: row.locationName,
     googleMapsUrl: row.googleMapsUrl,
     category: row.category,
+    subcategory: row.subcategory,
     priceText: row.priceText,
     ticketUrl: row.ticketUrl,
     imageUrl: row.imageUrl,
@@ -356,6 +361,7 @@ export async function submitForReview(
     locationName: input.locationName,
     googleMapsUrl: input.googleMapsUrl,
     category: input.category,
+    subcategory: input.subcategory,
     priceText: input.priceText,
     ticketUrl: input.ticketUrl,
     organizerContact: input.organizerContact,

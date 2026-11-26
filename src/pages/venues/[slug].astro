@@ -2,7 +2,8 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
-import { categoryLabels, districtLabels } from '../../lib/labels';
+import { categoryLabels, districtLabels, subcategoryLabel } from '../../lib/labels';
+import { doorHref } from '../../../shared/taxonomy';
 import { fetchVenueBySlug } from '../../lib/sanity';
 import { plainText, renderDescription } from '../../lib/text';
 import type { VenueRecord } from '../../lib/types';
@@ -20,8 +21,9 @@ const summary = venue ? plainText(venue.description).replace(/\s+/g, ' ').slice(
 const html = venue ? renderDescription(venue.description) : '';
 const fullImage = venue ? venue.imageUrl.replace(/\?.*$/, '') + (venue.imageUrl.includes('cdn.sanity.io') ? '?auto=format&q=85' : '') : '';
 const mapHref = venue?.googleMapsUrl || (venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.locationName}, ${venue.district}, Cyprus`)}` : '#');
-const backHref = venue ? `/categories?category=${encodeURIComponent(venue.category)}` : '/?ready=1';
+const backHref = venue ? doorHref(venue.category) : '/?ready=1';
 const backLabel = venue ? categoryLabels[venue.category] : 'Αρχική';
+const subLabel = venue?.subcategory ? subcategoryLabel(venue.subcategory) : '';
 ---
 
 <Layout title={venue ? venue.title : 'Ο χώρος δεν βρέθηκε'} description={summary || 'Χώρος φιλοξενίας στην Κύπρο.'} bare>
@@ -35,9 +37,13 @@ const backLabel = venue ? categoryLabels[venue.category] : 'Αρχική';
         venue ? (
           <>
             <p class="event-kicker">
-              Χώρος φιλοξενίας
-              <span aria-hidden="true">·</span>
               {categoryLabels[venue.category]}
+              {subLabel && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  {subLabel}
+                </>
+              )}
               <span aria-hidden="true">·</span>
               {districtLabels[venue.district]}
             </p>
@@ -59,8 +65,8 @@ const backLabel = venue ? categoryLabels[venue.category] : 'Αρχική';
                 <dd>{venue.locationName}</dd>
               </div>
               <div>
-                <dt>Δραστηριότητες</dt>
-                <dd>{categoryLabels[venue.category]}</dd>
+                <dt>Υποκατηγορία</dt>
+                <dd>{subLabel || categoryLabels[venue.category]}</dd>
               </div>
             </dl>
             {html && <div class="event-copy" set:html={html} />}

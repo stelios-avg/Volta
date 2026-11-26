@@ -1,4 +1,4 @@
-import { isCategory, isDistrict, type Category, type District } from '../../shared/taxonomy';
+import { isCategory, isDistrict, listingKind, type Category, type District } from '../../shared/taxonomy';
 import { cyprusLocalToISO } from './dates';
 
 export interface SubmitPayload {
@@ -10,6 +10,7 @@ export interface SubmitPayload {
   locationName: string;
   googleMapsUrl?: string;
   category: Category;
+  subcategory: string;
   priceText: string;
   ticketUrl?: string;
   organizerContact: string;
@@ -69,6 +70,11 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
   const category = field(form, 'category');
   if (!isCategory(category)) errors.push('Διάλεξε κατηγορία.');
 
+  const subcategory = field(form, 'subcategory');
+  if (isCategory(category) && listingKind(category, subcategory) !== 'event') {
+    errors.push('Διάλεξε υποκατηγορία εκδήλωσης.');
+  }
+
   const locationName = field(form, 'locationName');
   if (locationName.length < 2 || locationName.length > 160) errors.push('Συμπλήρωσε τον χώρο ή το χωριό.');
 
@@ -85,7 +91,7 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
 
   const priceText = (field(form, 'priceText') || 'Δωρεάν').slice(0, 40);
 
-  if (errors.length || !startDate || !isDistrict(district) || !isCategory(category)) {
+  if (errors.length || !startDate || !isDistrict(district) || !isCategory(category) || listingKind(category, subcategory) !== 'event') {
     return { errors };
   }
 
@@ -100,6 +106,7 @@ export function parseSubmitForm(form: FormData): { data?: SubmitPayload; errors:
       locationName,
       googleMapsUrl,
       category,
+      subcategory,
       priceText,
       ticketUrl,
       organizerContact,
@@ -116,6 +123,7 @@ export interface VenuePayload {
   googleMapsUrl?: string;
   websiteUrl?: string;
   category: Category;
+  subcategory: string;
   organizerContact: string;
 }
 
@@ -131,7 +139,12 @@ export function parseVenueForm(form: FormData): { data?: VenuePayload; errors: s
   if (!isDistrict(district)) errors.push('Διάλεξε επαρχία.');
 
   const category = field(form, 'category');
-  if (!isCategory(category)) errors.push('Διάλεξε τι δραστηριότητες έχει ο χώρος.');
+  if (!isCategory(category)) errors.push('Διάλεξε κατηγορία.');
+
+  const subcategory = field(form, 'subcategory');
+  if (isCategory(category) && listingKind(category, subcategory) !== 'venue') {
+    errors.push('Διάλεξε υποκατηγορία χώρου.');
+  }
 
   const locationName = field(form, 'locationName');
   if (locationName.length < 2 || locationName.length > 160) errors.push('Συμπλήρωσε τη διεύθυνση ή την περιοχή.');
@@ -147,10 +160,12 @@ export function parseVenueForm(form: FormData): { data?: VenuePayload; errors: s
   const organizerContact = field(form, 'organizerContact');
   if (!isContact(organizerContact)) errors.push('Συμπλήρωσε email ή τηλέφωνο επικοινωνίας.');
 
-  if (errors.length || !isDistrict(district) || !isCategory(category)) return { errors };
+  if (errors.length || !isDistrict(district) || !isCategory(category) || listingKind(category, subcategory) !== 'venue') {
+    return { errors };
+  }
 
   return {
     errors: [],
-    data: { title, description, district, locationName, googleMapsUrl, websiteUrl, category, organizerContact },
+    data: { title, description, district, locationName, googleMapsUrl, websiteUrl, category, subcategory, organizerContact },
   };
 }

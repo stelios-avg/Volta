@@ -1,6 +1,6 @@
 ---
-import { CATEGORIES, DISTRICTS } from '../../shared/taxonomy';
-import { categoryLabels, districtLabels } from '../lib/labels';
+import { DISTRICTS, DOORS, SUBCATEGORIES } from '../../shared/taxonomy';
+import { districtLabels } from '../lib/labels';
 ---
 
 <form id="submit-form" class="submit-form" enctype="multipart/form-data">
@@ -10,18 +10,6 @@ import { categoryLabels, districtLabels } from '../lib/labels';
       <input name="company" tabindex="-1" autocomplete="off" />
     </label>
   </div>
-
-  <fieldset class="kind-switch">
-    <legend>Τι καταχωρείς</legend>
-    <label>
-      <input type="radio" name="kind" value="event" checked />
-      <span>Εκδήλωση</span>
-    </label>
-    <label>
-      <input type="radio" name="kind" value="venue" />
-      <span>Χώρος φιλοξενίας</span>
-    </label>
-  </fieldset>
 
   <label class="field">
     <span data-label-event="Τίτλος" data-label-venue="Όνομα χώρου">Τίτλος</span>
@@ -53,10 +41,19 @@ import { categoryLabels, districtLabels } from '../lib/labels';
       </select>
     </label>
     <label class="field">
-      <span data-label-event="Κατηγορία" data-label-venue="Δραστηριότητες">Κατηγορία</span>
+      <span>Κατηγορία</span>
       <select name="category" required>
-        <option value="">Επίλεξε κατηγορία</option>
-        {CATEGORIES.map((category) => <option value={category}>{categoryLabels[category]}</option>)}
+        {DOORS.map((door) => <option value={door.id}>{door.label}</option>)}
+      </select>
+    </label>
+    <label class="field">
+      <span>Υποκατηγορία</span>
+      <select name="subcategory" required>
+        {SUBCATEGORIES.map((item) => (
+          <option value={item.id} data-door={item.door} data-listing={item.listing}>
+            {item.label}
+          </option>
+        ))}
       </select>
     </label>
   </div>
@@ -110,14 +107,26 @@ import { categoryLabels, districtLabels } from '../lib/labels';
   const errorBox = document.querySelector<HTMLElement>('#form-error');
   const button = document.querySelector<HTMLButtonElement>('#submit-button');
 
-  const selectedKind = () => {
-    const selected = form?.querySelector<HTMLInputElement>('input[name="kind"]:checked');
-    return selected?.value === 'venue' ? 'venue' : 'event';
+  const doorSelect = form?.querySelector<HTMLSelectElement>('select[name="category"]');
+  const subSelect = form?.querySelector<HTMLSelectElement>('select[name="subcategory"]');
+
+  const selectedListing = () => {
+    const option = subSelect?.selectedOptions[0];
+    return option?.dataset.listing === 'venue' ? 'venue' : 'event';
   };
 
-  const applyKind = () => {
-    if (!form) return;
-    const kind = selectedKind();
+  const applyListing = () => {
+    if (!form || !doorSelect || !subSelect) return;
+    const door = doorSelect.value;
+    let first = '';
+    Array.from(subSelect.options).forEach((option) => {
+      const show = option.dataset.door === door;
+      option.hidden = !show;
+      option.disabled = !show;
+      if (show && !first) first = option.value;
+    });
+    if (subSelect.selectedOptions[0]?.disabled && first) subSelect.value = first;
+    const kind = selectedListing();
     form.querySelectorAll<HTMLElement>('[data-for]').forEach((node) => {
       const show = node.dataset.for === kind;
       node.hidden = !show;
@@ -135,16 +144,13 @@ import { categoryLabels, districtLabels } from '../lib/labels';
     if (description) {
       description.placeholder = kind === 'venue' ? 'Προαιρετικά. Τι γίνεται στον χώρο.' : 'Προαιρετικά. Ακόμα και μία λέξη.';
     }
-    const categoryEmpty = form.querySelector<HTMLOptionElement>('select[name="category"] option[value=""]');
-    if (categoryEmpty) categoryEmpty.textContent = kind === 'venue' ? 'Τι φιλοξενεί' : 'Επίλεξε κατηγορία';
     const location = form.querySelector<HTMLInputElement>('input[name="locationName"]');
     if (location) location.placeholder = kind === 'venue' ? 'Όμοδος' : 'Κάστρο Πάφου';
   };
 
-  form?.querySelectorAll('input[name="kind"]').forEach((input) => {
-    input.addEventListener('change', applyKind);
-  });
-  applyKind();
+  doorSelect?.addEventListener('change', applyListing);
+  subSelect?.addEventListener('change', applyListing);
+  applyListing();
 
   const showError = (message: string) => {
     if (!errorBox) return;
@@ -160,7 +166,7 @@ import { categoryLabels, districtLabels } from '../lib/labels';
     button.disabled = true;
     const original = button.textContent;
     button.textContent = 'Αποστολή…';
-    const kind = selectedKind();
+    const kind = selectedListing();
     try {
       const response = await fetch(kind === 'venue' ? '/api/submit-venue' : '/api/submit-event', {
         method: 'POST',

@@ -1,34 +1,41 @@
 ---
 export const prerender = false;
 
+import DoorFilters from '../components/DoorFilters.astro';
 import EventReel from '../components/EventReel.astro';
 import Layout from '../layouts/Layout.astro';
 import { getPublishedEvents } from '../lib/events';
-import { isUpcoming } from '../lib/filters';
-import { fetchPublishedVenues } from '../lib/sanity';
-import { CATEGORIES, isCategory } from '../../shared/taxonomy';
+import { isUpcoming, matchesDoor, parseDistrictParam, parseSubcategoryParam } from '../lib/filters';
 import { categoryLabels, districtLabels } from '../lib/labels';
+import { fetchPublishedVenues } from '../lib/sanity';
+import { DOORS, LEGACY_CATEGORIES, doorHref, isCategory, listingKind, type Category } from '../../shared/taxonomy';
 
 const categoryParam = Astro.url.searchParams.get('category');
-const category = categoryParam && isCategory(categoryParam) ? categoryParam : null;
+const legacy = categoryParam ? (LEGACY_CATEGORIES as Record<string, Category>)[categoryParam] : undefined;
+if (legacy) return Astro.redirect(doorHref(legacy));
+if (categoryParam === 'events') return Astro.redirect('/browse');
 
-const categorySlides = CATEGORIES.map((id) => ({
-  name: categoryLabels[id],
-  place: id === 'Village Festivals' ? 'Όμοδος' : id === 'Outdoors & Nature' ? 'Τρόοδος' : id === 'Food & Wine' || id === 'Kids & Family' ? 'Λεμεσός' : 'Λευκωσία',
+const category = categoryParam && isCategory(categoryParam) ? categoryParam : null;
+const requestedSub = parseSubcategoryParam(Astro.url.searchParams.get('sub'));
+const sub = category && requestedSub && listingKind(category, requestedSub) ? requestedSub : null;
+const district = parseDistrictParam(Astro.url.searchParams.get('district'));
+
+const media: Record<Category, { image: string; place: string }> = {
+  events: { image: '/media/hero-concert.jpg', place: 'Κύπρος' },
+  panigyria: { image: '/media/village.jpg', place: 'Όμοδος' },
+  music: { image: '/media/jazz.jpg', place: 'Λευκωσία' },
+  food: { image: '/media/food.jpg', place: 'Λεμεσός' },
+  culture: { image: '/media/theatre.jpg', place: 'Λευκωσία' },
+  family: { image: '/media/kids.jpg', place: 'Λεμεσός' },
+  outings: { image: '/media/trail.jpg', place: 'Τρόοδος' },
+};
+
+const categorySlides = DOORS.map((door) => ({
+  name: door.label,
+  place: media[door.id].place,
   year: '2026',
-  image:
-    id === 'Village Festivals'
-      ? '/media/village.jpg'
-      : id === 'Live Music & Nightlife'
-        ? '/media/jazz.jpg'
-        : id === 'Kids & Family'
-          ? '/media/kids.jpg'
-          : id === 'Food & Wine'
-            ? '/media/food.jpg'
-            : id === 'Culture & Theatre'
-              ? '/media/theatre.jpg'
-              : '/media/trail.jpg',
-  href: `/categories?category=${encodeURIComponent(id)}`,
+  image: media[door.id].image,
+  href: doorHref(door.id),
 }));
 
 const feed = category ? await getPublishedEvents() : null;
@@ -41,7 +48,7 @@ if (category) {
   }
 }
 const eventSlides = (feed?.events ?? [])
-  .filter((event) => event.category === category && isUpcoming(event))
+  .filter((event) => category && matchesDoor(event, category, sub, district) && isUpcoming(event))
   .map((event) => ({
     name: event.title,
     place: event.locationName || districtLabels[event.district],
@@ -50,7 +57,7 @@ const eventSlides = (feed?.events ?? [])
     href: `/events/${event.slug}`,
   }));
 const venueSlides = venues
-  .filter((venue) => venue.category === category)
+  .filter((venue) => category && matchesDoor(venue, category, sub, district))
   .map((venue) => ({
     name: venue.title,
     place: venue.locationName || districtLabels[venue.district],
@@ -61,16 +68,17 @@ const venueSlides = venues
 
 const slides = category ? [...eventSlides, ...venueSlides] : categorySlides;
 const description = category
-  ? `Εκδηλώσεις στην κατηγορία ${categoryLabels[category]}.`
-  : 'Κατηγορίες εκδηλώσεων στην Κύπρο: πανηγύρια, μουσική, οικογένεια, γεύσεις, πολιτισμός και ύπαιθρος.';
+  ? `${categoryLabels[category]} στην Κύπρο.`
+  : 'Κατηγορίες στην Κύπρο: εκδηλώσεις, πανηγύρια, μουσική, γεύσεις, πολιτισμός, οικογένεια και εξορμήσεις.';
 ---
 
 <Layout title={category ? categoryLabels[category] : 'Κατηγορίες'} description={description} bare locked>
+  {category && <DoorFilters door={category} sub={sub} district={district} />}
   <EventReel
     slides={slides}
     showBack={Boolean(category)}
-    emptyText="Δεν υπάρχουν προσεχείς εκδηλώσεις σε αυτή την κατηγορία."
-    emptyHref="/categories"
-    emptyLabel="Όλες οι κατηγορίες"
+    emptyText="Δεν υπάρχει κάτι σε αυτό το φίλτρο."
+    emptyHref={category ? doorHref(category) : '/categories'}
+    emptyLabel={category ? 'Όλα' : 'Όλες οι κατηγορίες'}
   />
 </Layout>

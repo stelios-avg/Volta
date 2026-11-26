@@ -1,5 +1,6 @@
 ---
 import Baby from '@lucide/astro/icons/baby';
+import Calendar from '@lucide/astro/icons/calendar';
 import Drama from '@lucide/astro/icons/drama';
 import MicVocal from '@lucide/astro/icons/mic-vocal';
 import PartyPopper from '@lucide/astro/icons/party-popper';
@@ -16,12 +17,13 @@ interface Props {
 const { filters } = Astro.props;
 const timeframes: Timeframe[] = ['today', 'weekend', 'week', 'month'];
 const categoryIcons: Record<Category, typeof PartyPopper> = {
-  'Village Festivals': PartyPopper,
-  'Live Music & Nightlife': MicVocal,
-  'Kids & Family': Baby,
-  'Food & Wine': Wine,
-  'Culture & Theatre': Drama,
-  'Outdoors & Nature': Trees,
+  events: Calendar,
+  panigyria: PartyPopper,
+  music: MicVocal,
+  family: Baby,
+  food: Wine,
+  culture: Drama,
+  outings: Trees,
 };
 ---
 
@@ -67,7 +69,7 @@ const categoryIcons: Record<Category, typeof PartyPopper> = {
         const active = filters.category === pill.id;
         return (
           <a
-            href={filtersToQuery({ ...filters, category: active ? null : pill.id })}
+            href={filtersToQuery({ ...filters, category: active ? null : pill.id, subcategory: null })}
             data-category={pill.id}
             aria-current={active ? 'true' : 'false'}
             class="pill"

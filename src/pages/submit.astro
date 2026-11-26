@@ -43,7 +43,7 @@ const showForm = !status || status === 'cancelled';
     <section class="submit-frame">
       <p class="submit-kicker">Καταχώρηση</p>
       <h1>Νέα καταχώριση</h1>
-      <p class="submit-lead">Δωρεάν καταχώρηση για εκδήλωση ή χώρο φιλοξενίας. Έλεγχος μέσα σε 48 ώρες και δημοσίευση μετά την έγκριση.</p>
+      <p class="submit-lead">Διάλεξε κατηγορία και υποκατηγορία. Η ημερομηνία ζητείται στις εκδηλώσεις. Στους χώρους μένει κενή. Έλεγχος μέσα σε 48 ώρες και δημοσίευση μετά την έγκριση.</p>
 
       {
         status === 'free' && (
@@ -249,56 +249,6 @@ const showForm = !status || status === 'cancelled';
 
   .submit-status a {
     margin-top: 1.25rem;
-  }
-
-  .kind-switch {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0;
-    border: 0;
-    padding: 0;
-  }
-
-  .kind-switch legend {
-    width: 100%;
-    margin-bottom: 0.35rem;
-    color: #16120c;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-
-  .kind-switch label {
-    position: relative;
-    display: inline-flex;
-    cursor: pointer;
-  }
-
-  .kind-switch input {
-    position: absolute;
-    opacity: 0;
-  }
-
-  .kind-switch span {
-    border: 1px solid #111;
-    border-radius: 999px;
-    padding: 0.7rem 1rem;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .kind-switch input:checked + span {
-    background: #16120c;
-    color: #f3ede1;
-  }
-
-  .kind-switch input:focus-visible + span {
-    outline: 2px solid #111;
-    outline-offset: 3px;
   }
 
   @media (max-width: 720px) {

@@ -1,5 +1,5 @@
 import type { Category, District } from '../../shared/taxonomy';
-import { CATEGORIES, DISTRICTS } from '../../shared/taxonomy';
+import { CATEGORIES, DISTRICTS, DOORS, subcategoryById } from '../../shared/taxonomy';
 import type { Timeframe } from './filters';
 import { fold } from './filters';
 
@@ -12,14 +12,14 @@ export const districtLabels: Record<District, string> = {
   'Troodos & Mountains': 'Τρόοδος',
 };
 
-export const categoryLabels: Record<Category, string> = {
-  'Village Festivals': 'Πανηγύρια',
-  'Live Music & Nightlife': 'Ζωντανή μουσική',
-  'Kids & Family': 'Παιδιά & οικογένεια',
-  'Food & Wine': 'Φαγητό & κρασί',
-  'Culture & Theatre': 'Πολιτισμός & θέατρο',
-  'Outdoors & Nature': 'Φύση & ύπαιθρος',
-};
+export const categoryLabels: Record<Category, string> = Object.fromEntries(DOORS.map((door) => [door.id, door.label])) as Record<
+  Category,
+  string
+>;
+
+export function subcategoryLabel(id: string): string {
+  return subcategoryById(id)?.label ?? '';
+}
 
 export const timeframeLabels: Record<Timeframe, string> = {
   today: 'Σήμερα',
@@ -44,6 +44,7 @@ export function searchText(event: {
   locationName?: string;
   district: District;
   category: Category;
+  subcategory?: string;
   priceText?: string;
 }): string {
   return fold(
@@ -54,6 +55,7 @@ export function searchText(event: {
       districtLabels[event.district],
       event.category,
       categoryLabels[event.category],
+      event.subcategory ? subcategoryLabel(event.subcategory) : '',
       event.priceText ?? '',
     ].join(' '),
   );
