@@ -15,7 +15,6 @@ const PHOTOS = [
 
 const NAV = [
   { label: 'Εκδηλώσεις', href: '/browse', glyph: 'calendar', wide: true },
-  { label: 'Χώροι', href: '/venues', glyph: 'place', wide: true },
   { label: 'Πανηγύρια', href: '/categories?category=Village%20Festivals', glyph: 'sun', wide: true },
   { label: 'Μουσική', href: '/categories?category=Live%20Music%20%26%20Nightlife', glyph: 'music', wide: true },
   { label: 'Οικογένεια', href: '/categories?category=Kids%20%26%20Family', glyph: 'people', wide: true },
@@ -94,14 +93,6 @@ function NavGlyph({ name }: { name: string }) {
       <svg {...props}>
         <path d="M3.5 17.5h17" />
         <path d="M4.5 17.5 10 8l2.6 3.4L15 8.8l4.5 8.7" />
-      </svg>
-    );
-  }
-  if (name === 'place') {
-    return (
-      <svg {...props}>
-        <path d="M4 10.5 12 4l8 6.5" />
-        <path d="M6.5 9.5V20h11V9.5" />
       </svg>
     );
   }

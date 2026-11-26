@@ -4,7 +4,6 @@ import Sun from '@lucide/astro/icons/sun';
 const path = Astro.url.pathname;
 const submitActive = path.startsWith('/submit');
 const browseActive = path.startsWith('/browse');
-const venuesActive = path.startsWith('/venues');
 const categoriesActive = path.startsWith('/categories');
 ---
 
@@ -28,9 +27,6 @@ const categoriesActive = path.startsWith('/categories');
       </a>
       <a href="/browse" class:list={['rounded-full px-3 py-2', browseActive ? 'text-ink' : 'text-muted']} aria-current={browseActive ? 'page' : undefined}>
         Εκδηλώσεις
-      </a>
-      <a href="/venues" class:list={['rounded-full px-3 py-2', venuesActive ? 'text-ink' : 'text-muted']} aria-current={venuesActive ? 'page' : undefined}>
-        Χώροι
       </a>
       <a
         href="/submit"

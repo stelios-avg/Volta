@@ -74,9 +74,9 @@ export async function notifyNewVenue(
     body: JSON.stringify({
       from: process.env.RESEND_FROM || 'Volta <onboarding@resend.dev>',
       to: [to],
-      subject: `Νέος χώρος: ${input.title}`,
+      subject: `Νέος χώρος φιλοξενίας: ${input.title}`,
       html: `<div style="font-family:Inter,Arial,sans-serif;color:#16120c">
-        <p>Κάποιος έστειλε έναν χώρο με δραστηριότητες. Άνοιξε το Studio και πάτα Publish για να φανεί στη σελίδα.</p>
+        <p>Κάποιος έστειλε έναν χώρο φιλοξενίας. Άνοιξε το Studio και πάτα Publish για να φανεί στην κατηγορία του.</p>
         <p><strong>Χώρος</strong><br />${escape(input.title)}</p>
         <p><strong>Δραστηριότητες</strong><br />${escape(categoryLabels[input.category])}</p>
         <p><strong>Επαρχία</strong><br />${escape(districtLabels[input.district])}</p>

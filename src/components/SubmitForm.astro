@@ -11,8 +11,20 @@ import { categoryLabels, districtLabels } from '../lib/labels';
     </label>
   </div>
 
+  <fieldset class="kind-switch">
+    <legend>Τι καταχωρείς</legend>
+    <label>
+      <input type="radio" name="kind" value="event" checked />
+      <span>Εκδήλωση</span>
+    </label>
+    <label>
+      <input type="radio" name="kind" value="venue" />
+      <span>Χώρος φιλοξενίας</span>
+    </label>
+  </fieldset>
+
   <label class="field">
-    <span>Τίτλος</span>
+    <span data-label-event="Τίτλος" data-label-venue="Όνομα χώρου">Τίτλος</span>
     <input name="title" required minlength="3" maxlength="140" placeholder="Πανηγύρι στο Όμοδος" />
   </label>
 
@@ -21,7 +33,7 @@ import { categoryLabels, districtLabels } from '../lib/labels';
     <textarea name="description" maxlength="4000" placeholder="Προαιρετικά. Ακόμα και μία λέξη."></textarea>
   </label>
 
-  <div class="grid gap-4 sm:grid-cols-2">
+  <div class="grid gap-4 sm:grid-cols-2" data-for="event">
     <label class="field">
       <span>Έναρξη</span>
       <input name="startDate" type="datetime-local" required />
@@ -41,7 +53,7 @@ import { categoryLabels, districtLabels } from '../lib/labels';
       </select>
     </label>
     <label class="field">
-      <span>Κατηγορία</span>
+      <span data-label-event="Κατηγορία" data-label-venue="Δραστηριότητες">Κατηγορία</span>
       <select name="category" required>
         <option value="">Επίλεξε κατηγορία</option>
         {CATEGORIES.map((category) => <option value={category}>{categoryLabels[category]}</option>)}
@@ -50,7 +62,7 @@ import { categoryLabels, districtLabels } from '../lib/labels';
   </div>
 
   <label class="field">
-    <span>Χώρος ή χωριό</span>
+    <span data-label-event="Χώρος ή χωριό" data-label-venue="Διεύθυνση ή περιοχή">Χώρος ή χωριό</span>
     <input name="locationName" required minlength="2" maxlength="160" placeholder="Κάστρο Πάφου" />
   </label>
 
@@ -59,13 +71,17 @@ import { categoryLabels, districtLabels } from '../lib/labels';
       <span>Σύνδεσμος Google Maps</span>
       <input name="googleMapsUrl" type="url" inputmode="url" placeholder="https://" />
     </label>
-    <label class="field">
+    <label class="field" data-for="event">
       <span>Είσοδος</span>
       <input name="priceText" maxlength="40" placeholder="Δωρεάν, €15, Είσοδος ελεύθερη" />
     </label>
+    <label class="field" data-for="venue">
+      <span>Ιστότοπος</span>
+      <input name="websiteUrl" type="url" inputmode="url" placeholder="https://" />
+    </label>
   </div>
 
-  <label class="field">
+  <label class="field" data-for="event">
     <span>Σύνδεσμος εισιτηρίων</span>
     <input name="ticketUrl" type="url" inputmode="url" placeholder="https://" />
   </label>
@@ -94,6 +110,42 @@ import { categoryLabels, districtLabels } from '../lib/labels';
   const errorBox = document.querySelector<HTMLElement>('#form-error');
   const button = document.querySelector<HTMLButtonElement>('#submit-button');
 
+  const selectedKind = () => {
+    const selected = form?.querySelector<HTMLInputElement>('input[name="kind"]:checked');
+    return selected?.value === 'venue' ? 'venue' : 'event';
+  };
+
+  const applyKind = () => {
+    if (!form) return;
+    const kind = selectedKind();
+    form.querySelectorAll<HTMLElement>('[data-for]').forEach((node) => {
+      const show = node.dataset.for === kind;
+      node.hidden = !show;
+      node.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea').forEach((input) => {
+        input.disabled = !show;
+      });
+    });
+    form.querySelectorAll<HTMLElement>('[data-label-event]').forEach((node) => {
+      const next = kind === 'venue' ? node.dataset.labelVenue : node.dataset.labelEvent;
+      if (next) node.textContent = next;
+    });
+    const title = form.querySelector<HTMLInputElement>('input[name="title"]');
+    if (title) title.placeholder = kind === 'venue' ? 'Πολιτιστικό Κέντρο Όμοδος' : 'Πανηγύρι στο Όμοδος';
+    const description = form.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+    if (description) {
+      description.placeholder = kind === 'venue' ? 'Προαιρετικά. Τι γίνεται στον χώρο.' : 'Προαιρετικά. Ακόμα και μία λέξη.';
+    }
+    const categoryEmpty = form.querySelector<HTMLOptionElement>('select[name="category"] option[value=""]');
+    if (categoryEmpty) categoryEmpty.textContent = kind === 'venue' ? 'Τι φιλοξενεί' : 'Επίλεξε κατηγορία';
+    const location = form.querySelector<HTMLInputElement>('input[name="locationName"]');
+    if (location) location.placeholder = kind === 'venue' ? 'Όμοδος' : 'Κάστρο Πάφου';
+  };
+
+  form?.querySelectorAll('input[name="kind"]').forEach((input) => {
+    input.addEventListener('change', applyKind);
+  });
+  applyKind();
+
   const showError = (message: string) => {
     if (!errorBox) return;
     errorBox.hidden = !message;
@@ -108,8 +160,12 @@ import { categoryLabels, districtLabels } from '../lib/labels';
     button.disabled = true;
     const original = button.textContent;
     button.textContent = 'Αποστολή…';
+    const kind = selectedKind();
     try {
-      const response = await fetch('/api/submit-event', { method: 'POST', body: new FormData(form) });
+      const response = await fetch(kind === 'venue' ? '/api/submit-venue' : '/api/submit-event', {
+        method: 'POST',
+        body: new FormData(form),
+      });
       const data = await response.json();
       if (!response.ok || !data.ok) {
         showError(Array.isArray(data.errors) ? data.errors.join(' ') : 'Η υποβολή δεν ολοκληρώθηκε.');

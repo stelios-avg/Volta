@@ -19,7 +19,7 @@ export default defineConfig({
           .title('Περιεχόμενο')
           .items([
             S.documentTypeListItem('event').title('Εκδηλώσεις'),
-            S.documentTypeListItem('venue').title('Χώροι'),
+            S.documentTypeListItem('venue').title('Χώροι φιλοξενίας'),
           ]),
     }),
     visionTool(),

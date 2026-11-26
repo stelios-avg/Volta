@@ -20,12 +20,14 @@ const summary = venue ? plainText(venue.description).replace(/\s+/g, ' ').slice(
 const html = venue ? renderDescription(venue.description) : '';
 const fullImage = venue ? venue.imageUrl.replace(/\?.*$/, '') + (venue.imageUrl.includes('cdn.sanity.io') ? '?auto=format&q=85' : '') : '';
 const mapHref = venue?.googleMapsUrl || (venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.locationName}, ${venue.district}, Cyprus`)}` : '#');
+const backHref = venue ? `/categories?category=${encodeURIComponent(venue.category)}` : '/?ready=1';
+const backLabel = venue ? categoryLabels[venue.category] : 'Αρχική';
 ---
 
-<Layout title={venue ? venue.title : 'Ο χώρος δεν βρέθηκε'} description={summary || 'Χώρος με δραστηριότητες στην Κύπρο.'} bare>
-  <a href="/venues" class="event-back">
+<Layout title={venue ? venue.title : 'Ο χώρος δεν βρέθηκε'} description={summary || 'Χώρος φιλοξενίας στην Κύπρο.'} bare>
+  <a href={backHref} class="event-back">
     <span aria-hidden="true">←</span>
-    Χώροι
+    {backLabel}
   </a>
   <article class="event-page">
     <div class="event-frame">
@@ -33,6 +35,8 @@ const mapHref = venue?.googleMapsUrl || (venue ? `https://www.google.com/maps/se
         venue ? (
           <>
             <p class="event-kicker">
+              Χώρος φιλοξενίας
+              <span aria-hidden="true">·</span>
               {categoryLabels[venue.category]}
               <span aria-hidden="true">·</span>
               {districtLabels[venue.district]}
@@ -74,7 +78,7 @@ const mapHref = venue?.googleMapsUrl || (venue ? `https://www.google.com/maps/se
             <h1>Δεν βρέθηκε</h1>
             <p class="event-missing">Ο χώρος μπορεί να μην έχει δημοσιευτεί ακόμα.</p>
             <div class="event-actions">
-              <a class="is-solid" href="/venues">Πίσω στους χώρους</a>
+              <a class="is-solid" href="/?ready=1">Αρχική</a>
             </div>
           </>
         )

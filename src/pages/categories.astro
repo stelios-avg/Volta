@@ -5,6 +5,7 @@ import EventReel from '../components/EventReel.astro';
 import Layout from '../layouts/Layout.astro';
 import { getPublishedEvents } from '../lib/events';
 import { isUpcoming } from '../lib/filters';
+import { fetchPublishedVenues } from '../lib/sanity';
 import { CATEGORIES, isCategory } from '../../shared/taxonomy';
 import { categoryLabels, districtLabels } from '../lib/labels';
 
@@ -31,6 +32,14 @@ const categorySlides = CATEGORIES.map((id) => ({
 }));
 
 const feed = category ? await getPublishedEvents() : null;
+let venues: Awaited<ReturnType<typeof fetchPublishedVenues>> = [];
+if (category) {
+  try {
+    venues = await fetchPublishedVenues();
+  } catch (error) {
+    console.error(error);
+  }
+}
 const eventSlides = (feed?.events ?? [])
   .filter((event) => event.category === category && isUpcoming(event))
   .map((event) => ({
@@ -40,8 +49,17 @@ const eventSlides = (feed?.events ?? [])
     image: event.imageUrl,
     href: `/events/${event.slug}`,
   }));
+const venueSlides = venues
+  .filter((venue) => venue.category === category)
+  .map((venue) => ({
+    name: venue.title,
+    place: venue.locationName || districtLabels[venue.district],
+    year: 'Χώρος',
+    image: venue.imageUrl,
+    href: `/venues/${venue.slug}`,
+  }));
 
-const slides = category ? eventSlides : categorySlides;
+const slides = category ? [...eventSlides, ...venueSlides] : categorySlides;
 const description = category
   ? `Εκδηλώσεις στην κατηγορία ${categoryLabels[category]}.`
   : 'Κατηγορίες εκδηλώσεων στην Κύπρο: πανηγύρια, μουσική, οικογένεια, γεύσεις, πολιτισμός και ύπαιθρος.';
